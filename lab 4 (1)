@@ -9,7 +9,7 @@ class Program {
   static void Main() {
       int a,b=0;
       int n=0;
-      Console.WriteLine ("Ввидите последовательность");
+      Console.WriteLine ("Введите последовательность");
       while (n<1)
       {
           a = Convert.ToInt32(Console.ReadLine());

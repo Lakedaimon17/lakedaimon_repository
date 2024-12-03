@@ -1,0 +1,35 @@
+/Дана последовательность из n  элементов для не меньше 2
+Определить макс размер подпоследовательности состоящий из одинаковых элементов/
+
+using System;
+class Program {
+  static void Main() {
+    int i=0,a,b,n,x=0,y=0;
+    Console.WriteLine ("Ввидите длину последовательности");
+    n = Convert.ToInt32(Console.ReadLine());
+    if (n<2)
+    {
+        Console.WriteLine ("Недостаточная длина последовательности");
+    }
+    else
+    {
+    Console.WriteLine ("Ввидите элементы последовательности");
+    a = Convert.ToInt32(Console.ReadLine());
+    for (i=0;i<(n-1);i++)
+    {
+    b = Convert.ToInt32(Console.ReadLine());
+    if (a==b) 
+    {
+    x++;
+    y=Math.Max(x,y);
+    }
+    else
+    {
+    x = 0;
+    }
+    a=b;
+    }
+    }
+    Console.WriteLine (y+1);
+  }
+}

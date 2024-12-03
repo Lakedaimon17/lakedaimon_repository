@@ -1,0 +1,13 @@
+/Дана строка 
+Необходимо отформатировать строку таким образом, чтобы между словами было ровно по одному пробелу/
+
+using System;
+class HelloWorld {
+  static void Main() {
+    string a;
+    Console.WriteLine ("Введите строку");
+    a = Console.ReadLine();
+    while (a.Contains("  ")) { a = a.Replace("  ", " "); };
+    Console.WriteLine (a);
+  }
+}

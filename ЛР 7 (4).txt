@@ -15,7 +15,7 @@ class HelloWorld {
             foreach (char ch in a.ToLower()) 
             { 
                 if ("aeiou".Contains(ch)) {count_vowels++;} 
-                else if ("qwrtYpsdfghjklzxcvbnm".Contains(ch)) {count_consonants++;}
+                else if ("qwrtypsdfghjklzxcvbnm".Contains(ch)) {count_consonants++;}
             }
             if (count_vowels > count_consonants) {Console.WriteLine(a);}
         }

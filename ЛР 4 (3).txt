@@ -1,0 +1,25 @@
+/Дан массив из n положительных целых элементов
+аменить все четные элементы на 0, нечетные - на 1/
+
+using System;
+class Program {
+  static void Main() {
+    int n,i;
+    Console.WriteLine ("Ввидите длину массива");
+    n = Convert.ToInt32(Console.ReadLine());
+    int[] array = new int[n];
+    for (i=0;i<n;i++)
+    {
+        array[i] = Convert.ToInt32 (Console.ReadLine());
+    }
+    for (i=0;i<n;i++)
+    {
+        if (array[i]%2 == 0) {array[i]=0;}
+        else {array[i]=1;}
+    }
+    for (i=0;i<n;i++)
+    {
+        Console.WriteLine (array[i]);
+    }
+}
+}

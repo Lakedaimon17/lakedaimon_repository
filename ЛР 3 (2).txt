@@ -1,0 +1,31 @@
+/Дана последовательность из n элементов не меньше 2
+Определить мин размер подпоследовательности состоящий из чётных элементов/
+
+using System;
+class HelloWorld {
+  static void Main() {
+    int i,n,a,b,count1=0, count2=Int32.MaxValue;
+    Console.WriteLine ("Введите длину последовательности");
+    n = Convert.ToInt32(Console.ReadLine());
+    if (n<2) {Console.WriteLine ("Недостаточная длина последовательности");}
+    else
+    {
+       a = Convert.ToInt32(Console.ReadLine());
+       if (a%2==0) {count1++;}
+       for (i = 1; i < n; i++) 
+       {
+            b = Convert.ToInt32(Console.ReadLine());
+            if (b % 2 == 0) {count1++;} 
+            else 
+            { 
+                if (count1 > 0) {count2 = Math.Min(count2, count1);}
+                count1 = 0;
+            }
+            a = b;
+        }
+       if (count1 == n) {Console.WriteLine ($"Минимальный размер подпоследовательности, состоящий из чётных элементов: {n}");}
+       else if (count2==Int32.MaxValue) {Console.WriteLine ("Чётных элементов нет");}
+       else {Console.WriteLine ($"Минимальный размер подпоследовательности, состоящий из чётных элементов: {count2}");}
+    }
+  }
+}

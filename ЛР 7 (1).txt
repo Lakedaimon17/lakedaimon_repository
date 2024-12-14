@@ -7,7 +7,7 @@ class HelloWorld {
     string a;
     Console.WriteLine ("Введите строку");
     a = Console.ReadLine();
-    while (a.Contains("  ")) { a = a.Replace("  ", " "); };
+    while (a.Contains("  ")) { a = a.Replace("  ", " "); }
     Console.WriteLine (a);
   }
 }

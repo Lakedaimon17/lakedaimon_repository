@@ -1,0 +1,92 @@
+/дан массив n*m
+Определить положение элементов минимакса (мин в строке и макс в столбце / макс в строке и мин в столбце) сортировать элементы в строках нельзя/
+
+using System;
+class HelloWorld {
+  static void Main() {
+      int n,m,i,j,k;
+      Console.WriteLine("Введите количество строк:");
+      n = int.Parse(Console.ReadLine());
+      Console.WriteLine("Введите количество столбцов:");
+      m = int.Parse(Console.ReadLine());
+      int[,] array = new int[n, m];
+      Console.WriteLine("Введите элементы массива:");
+      for (i = 0; i < n; i++)
+      {
+          for (j = 0; j < m; j++)
+          {
+              array[i, j] = int.Parse(Console.ReadLine());
+          }
+      }
+      int[,] minMaxPositions = new int[n, m];
+      int[,] maxMinPositions = new int[n, m];
+      int minMaxCount = 0;
+      int maxMinCount = 0;
+      for (i = 0; i < n; i++)
+      {
+          int minInRow = int.MaxValue;
+          int minIndex = -1;
+          for (j = 0; j < m; j++)
+          {
+              if (array[i, j] < minInRow)
+              {
+                  minInRow = array[i, j];
+                  minIndex = j;
+              }
+          }
+          bool isColumnMax = true;
+          for (k = 0; k < n; k++)
+          {
+              if (array[k, minIndex] > minInRow)
+              {
+                  isColumnMax = false;
+                  break;
+              }
+          }
+          if (isColumnMax)
+          {
+              minMaxPositions[minMaxCount, 0] = i;     
+              minMaxPositions[minMaxCount, 1] = minIndex; 
+              minMaxCount++;
+          }
+      }
+      for (i = 0; i < n; i++)
+      {
+          int maxInRow = int.MinValue;
+          int maxIndex = -1;
+          for (j = 0; j < m; j++)
+          {
+              if (array[i, j] > maxInRow)
+              {
+                  maxInRow = array[i, j];
+                  maxIndex = j;
+              }
+          }
+          bool isColumnMin = true;
+          for (k = 0; k < n; k++)
+          {
+              if (array[k, maxIndex] < maxInRow)
+              {
+                  isColumnMin = false;
+                  break;
+              }
+          }
+          if (isColumnMin)
+          {
+              maxMinPositions[maxMinCount, 0] = i;     
+              maxMinPositions[maxMinCount, 1] = maxIndex; 
+              maxMinCount++;
+          }
+      }
+        Console.WriteLine("Позиции минимаксов (минимум в строке, максимум в столбце):");
+        for (i = 0; i < minMaxCount; i++)
+        {
+            Console.WriteLine($"Строка: {minMaxPositions[i, 0] + 1}, Столбец: {minMaxPositions[i, 1] + 1}");
+        }
+        Console.WriteLine("Позиции максиминов (максимум в строке, минимум в столбце):");
+        for (i = 0; i < maxMinCount; i++)
+        {
+            Console.WriteLine($"Строка: {maxMinPositions[i, 0] + 1}, Столбец: {maxMinPositions[i, 1] + 1}");
+        }
+    }
+}

@@ -1,0 +1,41 @@
+//Дан зубчатый массив размерностью 4
+Задать размерность и элементы каждой строки (2-мерные массивы)
+Для каждой строки определить количество чётных и нечётных элементов//
+
+using System;
+class Program
+{
+    static void Main()
+    {
+        int i,j,a=0,b=0;
+        int[][] jaggedArray = new int[4][];
+        for (i = 0; i < 4; i++)
+        {
+            Console.WriteLine($"Введите количество элементов в строке {i + 1}:");
+            int number = int.Parse(Console.ReadLine());
+            jaggedArray[i] = new int[number];
+            Console.WriteLine($"Введите элементы для строки {i + 1}:");
+            for (j = 0; j < number; j++)
+            {
+                jaggedArray[i][j] = int.Parse(Console.ReadLine());
+            }
+        }
+        for (i = 0; i < 4; i++)
+        {
+            a=0;
+            b=0;
+            foreach (var n in jaggedArray[i])
+            {
+                if (n % 2 == 0)
+                {
+                    a++;
+                }
+                else
+                {
+                    b++;
+                }
+            }
+            Console.WriteLine($"Строка {i + 1}: Четные элементы - {a}, Нечетные элементы - {b}");
+        }
+    }
+}

@@ -1,0 +1,88 @@
+//Создается класс, где две переменных целого типа. Конструкторы следующие: 
+1. Конструктор без аргументов.
+2. Конструктор, который принимает 1 аргумент для инициализации.
+3. Конструктор, который принимает 2 аргумента для инициализации.
+Если конструктор без аргументов - проинициализировать нулями.
+Если 1 аргумент, то второе значение проинициализировать нулем.
+Записать 4 метода:
+1. Суммирование двух переменных класса
+2. Произведение двух переменных класса
+3. Разность двух переменных класса
+4. Деление первого аргумента на второй. Проверить деление на ноль
+Без свойств
+3 конструктора в зависимости от принимаемых значений. Один объект на основе первого конструктора, второй на основе второго и третий на основе третьего//
+
+using System;
+
+class MyClass
+{
+    private int a;
+    private int b;
+    public MyClass()
+    {
+        a = 0;
+        b = 0;
+    }
+    public MyClass(int value)
+    {
+        a = value;
+        b = 0;
+    }
+    public MyClass(int value1, int value2)
+    {
+        a = value1;
+        b = value2;
+    }
+    public int Summation()
+    {
+        return a + b;
+    }
+    public int Multiplication()
+    {
+        return a * b;
+    }
+    public int Difference()
+    {
+        return a - b;
+    }
+    public double Division()
+    {
+        return (double)a / b;
+    }
+}
+
+class Program
+{
+    static void Main()
+    {
+        Console.WriteLine("Введите первое значение (можно оставить пустым):");
+        string input1 = Console.ReadLine();
+        Console.WriteLine("Введите второе значение (можно оставить пустым):");
+        string input2 = Console.ReadLine();
+        MyClass obj;
+        if (string.IsNullOrEmpty(input1) && string.IsNullOrEmpty(input2))
+        {
+            obj = new MyClass();
+        }
+        else if (!string.IsNullOrEmpty(input1) && string.IsNullOrEmpty(input2))
+        {
+            int value1 = int.Parse(input1);
+            obj = new MyClass(value1);
+        }
+        else if (!string.IsNullOrEmpty(input1) && !string.IsNullOrEmpty(input2))
+        {
+            int value1 = int.Parse(input1);
+            int value2 = int.Parse(input2);
+            obj = new MyClass(value1, value2);
+        }
+        else
+        {
+            int value2 = int.Parse(input2);
+            obj = new MyClass(0, value2);
+        }
+        Console.WriteLine($"Сумма: {obj.Summation()}");
+        Console.WriteLine($"Произведение: {obj.Multiplication()}");
+        Console.WriteLine($"Разность: {obj.Difference()}");
+        Console.WriteLine($"Деление: {obj.Division()}");
+    }
+}

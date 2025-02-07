@@ -1,0 +1,33 @@
+using System;
+class Program {
+  static void Main() {
+      int a,b=0;
+      int n=0;
+      Console.WriteLine ("Ввидите последовательность");
+      while (n<1)
+      {
+          a = Convert.ToInt32(Console.ReadLine());
+          if (a<=0)
+          {
+           n++;
+          }
+          while (a>0) 
+          {
+                b *= 10;
+                b += a % 10;
+                a /= 10;
+                if (b % 2 == 0)
+                {
+                    b /= 10;
+                }
+          }
+          if (b == 0)
+          {
+              Console.WriteLine ("Все цифры чётные");
+          }
+          else
+          Console.WriteLine(b);
+          b=0;
+      }
+  }
+}

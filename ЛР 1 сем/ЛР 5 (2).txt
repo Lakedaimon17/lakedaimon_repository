@@ -1,0 +1,59 @@
+/дан массив n*m
+определить номера пар строк, состоящих из одинаковых элементов/
+
+using System;
+class HelloWorld {
+  static void Main() {
+      int n,m,i,j,k,pairCount = 0;
+      Console.WriteLine("Введите количество строк:");
+      n = Convert.ToInt32(Console.ReadLine());
+      int maxPairs = (n*(n-1))/2;
+      Console.WriteLine("Введите количество столбцов:");
+      m = Convert.ToInt32(Console.ReadLine());
+      int[,] array = new int[n,m];
+      for (i = 0; i < n; i++)
+      {
+          for (j = 0; j < m; j++)
+          {
+              array[i, j] = Convert.ToInt32(Console.ReadLine());
+          }
+      }
+      int[,] pairs = new int[maxPairs, 2];
+      for (i = 0; i < n; i++)
+      {
+          for (j = i + 1; j < n; j++)
+          {
+              bool areEqual = true;
+              for (k = 0; k < m; k++)
+              {
+                  if (array[i, k] != array[j, k])
+                  {
+                      areEqual = false;
+                      break;
+                  }
+              }
+              if (areEqual)
+              {
+                  if (pairCount < maxPairs)
+                  {
+                      pairs[pairCount, 0] = i;
+                      pairs[pairCount, 1] = j;
+                      pairCount++;
+                  }
+              }
+          }
+      }
+      if (pairCount > 0)
+      {
+          Console.WriteLine("Номера пар строк, состоящих из одинаковых элементов:");
+          for (i = 0; i < pairCount; i++)
+          {
+              Console.WriteLine($"Строки {pairs[i, 0] + 1} и {pairs[i, 1] + 1}");
+          }
+      }
+      else
+      {
+          Console.WriteLine("Нет одинаковых строк.");
+      }
+   }
+}

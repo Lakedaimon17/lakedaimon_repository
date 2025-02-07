@@ -1,0 +1,33 @@
+/Дана последовательность из n элементов для не меньше 3
+ Определить все ли элементы последовательности чётные/
+
+using System;
+class Program {
+  static void Main() {
+      int a,n,c=0;
+      n = Convert.ToInt32(Console.ReadLine());
+      if (n<3)
+      {
+          Console.WriteLine ("Nedostatochnaya Dlina.");
+      }
+      else
+      {
+      for (int i = 0; i<n; i++)
+      {
+          a = Convert.ToInt32(Console.ReadLine());
+          if ((a % 2) == 0)
+          { 
+              c++;
+          }
+      }
+         if (c == n)
+         {
+             Console.WriteLine ("Da");
+         }
+         else
+         {
+             Console.WriteLine ("Net");
+         }
+      }
+  }
+}

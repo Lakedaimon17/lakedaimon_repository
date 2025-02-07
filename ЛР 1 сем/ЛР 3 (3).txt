@@ -1,0 +1,31 @@
+/Дана последовательность из n элементов не меньше 2
+Определить макс сумму подпоследовательности состоящей из чётных элементов/
+
+using System;
+class HelloWorld {
+  static void Main() {
+    int i,n,a,b, sum1=0, sum2=Int32.MinValue;
+    Console.WriteLine ("Введите длину последовательности");
+    n = Convert.ToInt32(Console.ReadLine());
+    if (n<2) {Console.WriteLine ("Недостаточная длина последовательности");}
+    else
+    {
+       a = Convert.ToInt32(Console.ReadLine());
+       if (a % 2 == 0) {sum1 += a;}
+       for (i = 1; i < n; i++) 
+       {
+            b = Convert.ToInt32(Console.ReadLine());
+            if (b % 2 == 0) {sum1 += b;} 
+            else 
+            {
+                if (sum1 > 0) {sum2 = Math.Max(sum2, sum1);}
+                sum1 = 0;
+            }
+            a = b;
+        }
+        if (sum1 > 0) {sum2 = Math.Max(sum2, sum1);}
+        if (sum2 == Int32.MinValue) {Console.WriteLine("Чётных элементов нет");} 
+        else {Console.WriteLine($"Максимальная сумма подпоследовательности, состоящей из чётных элементов: {sum2}");}
+    }
+  }
+}

@@ -1,0 +1,270 @@
+using System;
+
+class Phone
+{
+    public string Number { get; set; }
+    public string Operator { get; set; }
+    public int YearConnected { get; set; }
+
+    public override string ToString()
+    {
+        return $"{Number} (Оператор: {Operator}, Год подключения: {YearConnected})";
+    }
+}
+
+class Person
+{
+    public string Name { get; set; }
+    public string City { get; set; }
+    private Phone[] Phones { get; set; }
+    private int phoneCount;
+    private const int MaxPhones = 5;
+
+    public Person()
+    {
+        Phones = new Phone[MaxPhones];
+        phoneCount = 0;
+    }
+
+    public void AddPhone(string number, string operatorName, int yearConnected)
+    {
+        if (phoneCount < MaxPhones)
+        {
+            Phones[phoneCount++] = new Phone { Number = number, Operator = operatorName, YearConnected = yearConnected };
+        }
+        else
+        {
+            Console.WriteLine("Достигнуто максимальное количество номеров для данного человека.");
+        }
+    }
+
+    public void DisplayPhones()
+    {
+        for (int i = 0; i < phoneCount; i++)
+        {
+            Console.WriteLine(Phones[i]);
+        }
+    }
+
+    public bool HasPhoneByOperator(string operatorName)
+    {
+        for (int i = 0; i < phoneCount; i++)
+        {
+            if (Phones[i].Operator.Equals(operatorName, StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public bool HasPhoneByYear(int year)
+    {
+        for (int i = 0; i < phoneCount; i++)
+        {
+            if (Phones[i].YearConnected == year)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public bool HasPhoneNumber(string number)
+    {
+        for (int i = 0; i < phoneCount; i++)
+        {
+            if (Phones[i].Number == number)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public override string ToString()
+    {
+        return $"{Name} из {City}";
+    }
+}
+
+class PhoneBook
+{
+    private Person[] people;
+    private int personCount;
+
+    public PhoneBook()
+    {
+        people = new Person[10];
+        personCount = 0;
+    }
+
+    public void AddPerson(string name, string city)
+    {
+        if (personCount < 10)
+        {
+            people[personCount++] = new Person { Name = name, City = city };
+        }
+        else
+        {
+            Console.WriteLine("Достигнуто максимальное количество записей в справочнике.");
+        }
+    }
+
+    public Person GetPerson(int index)
+    {
+        if (index >= 0 && index < personCount)
+        {
+            return people[index];
+        }
+        return null;
+    }
+
+    public int Count
+    {
+       get {return personCount;}
+    }
+
+    public void SearchByOperator(string operatorName)
+    {
+        Console.WriteLine($"Люди с оператором {operatorName}:");
+        for (int i = 0; i < personCount; i++)
+        {
+            if (people[i].HasPhoneByOperator(operatorName))
+            {
+                Console.WriteLine(people[i]);
+                people[i].DisplayPhones();
+            }
+        }
+    }
+
+    public void SearchByYearConnected(int year)
+    {
+        Console.WriteLine($"Люди с годом подключения {year}:");
+        for (int i = 0; i < personCount; i++)
+        {
+            if (people[i].HasPhoneByYear(year))
+            {
+                Console.WriteLine(people[i]);
+                people[i].DisplayPhones(); 
+            }
+        }
+    }
+
+    public void SearchByPhoneNumber(string number)
+    {
+        Console.WriteLine($"Люди с номером телефона {number}:");
+        for (int i = 0; i < personCount; i++)
+        {
+            if (people[i].HasPhoneNumber(number))
+            {
+                Console.WriteLine(people[i]);
+                people[i].DisplayPhones();
+            }
+        }
+    }
+}
+
+class Program
+{
+    static void Main(string[] args)
+    {
+        PhoneBook phoneBook = new PhoneBook();
+        bool exit = false;
+
+        while (!exit)
+        {
+            Console.WriteLine("Телефонный справочник");
+            Console.WriteLine("1. Добавить человека");
+            Console.WriteLine("2. Выбрать по оператору");
+            Console.WriteLine("3. Выбрать по году подключения");
+            Console.WriteLine("4. Выбрать по номеру телефона");
+            Console.WriteLine("0. Выход");
+            Console.Write("Выберите действие: ");
+            string choice = Console.ReadLine();
+
+            switch (choice)
+            {
+                case "1":
+                    AddPerson(phoneBook);
+                    break;
+                case "2":
+                    SearchByOperator(phoneBook);
+                    break;
+                case "3":
+                    SearchByYearConnected(phoneBook);
+                    break;
+                case "4":
+                    SearchByPhoneNumber(phoneBook);
+                    break;
+                case "0":
+                    exit = true;
+                    break;
+                default:
+                    Console.WriteLine("Неверный выбор, попробуйте снова.");
+                    break;
+            }
+        }
+    }
+
+    static void AddPerson(PhoneBook phoneBook)
+    {
+        Console.Write("Введите имя: ");
+        string name = Console.ReadLine();
+
+        Console.Write("Введите город: ");
+        string city = Console.ReadLine();
+
+        phoneBook.AddPerson(name, city);
+
+        while (true)
+        {
+            Console.Write("Введите номер телефона: ");
+            string number = Console.ReadLine();
+
+            Console.Write("Введите оператора: ");
+            string operatorName = Console.ReadLine();
+
+            Console.Write("Введите год подключения: ");
+            int yearConnected;
+            while (!int.TryParse(Console.ReadLine(), out yearConnected))
+            {
+                Console.Write("Неверный ввод. Введите год подключения: ");
+            }
+
+            Person lastPerson = phoneBook.GetPerson(phoneBook.Count - 1);
+            if (lastPerson != null)
+            {
+                lastPerson.AddPhone(number, operatorName, yearConnected);
+            }
+
+            Console.Write("Хотите добавить еще один номер телефона? (да/нет): ");
+            string answer = Console.ReadLine();
+            if (answer.ToLower() != "да")
+            {
+                break;
+            }
+        }
+    }
+
+    static void SearchByOperator(PhoneBook phoneBook)
+    {
+        Console.Write("Введите оператора для поиска: ");
+        string operatorName = Console.ReadLine();
+        phoneBook.SearchByOperator(operatorName);
+    }
+
+    static void SearchByYearConnected(PhoneBook phoneBook)
+    {
+        Console.Write("Введите год подключения для поиска: ");
+        int year = int.Parse(Console.ReadLine());
+        phoneBook.SearchByYearConnected(year);
+    }
+
+    static void SearchByPhoneNumber(PhoneBook phoneBook)
+    {
+        Console.Write("Введите номер телефона для поиска: ");
+        string number = Console.ReadLine();
+        phoneBook.SearchByPhoneNumber(number);
+    }
+}

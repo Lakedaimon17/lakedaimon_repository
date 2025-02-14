@@ -1,0 +1,76 @@
+using System;
+
+class Basic {
+    public string Name { get; set; }
+}
+
+public interface IPerArea {
+    double Perimeter();
+    double Area();
+}
+
+class Circle : Basic, IPerArea {
+    public double Radius { get; set; }
+
+    public double Perimeter() {
+        return 2 * Math.PI * Radius;
+    }
+
+    public double Area() {
+        return Math.PI * Radius * Radius;
+    }
+}
+
+class Square : Basic, IPerArea {
+    public double Side { get; set; }
+
+    public double Perimeter() {
+        return 4 * Side;
+    }
+
+    public double Area() {
+        return Side * Side;
+    }
+}
+
+class Triangle : Basic, IPerArea {
+    public double Side { get; set; }
+
+    public double Perimeter() {
+        return 3 * Side; 
+    }
+
+    public double Area() {
+        return (Math.Sqrt(3) / 4) * Side * Side;
+    }
+}
+
+class Program {
+    static void Main() {
+        Console.WriteLine("Введите данные для фигур:");
+
+        Circle circle = new Circle();
+        Console.Write("Имя круга: ");
+        circle.Name = Console.ReadLine();
+        Console.Write("Радиус круга: ");
+        circle.Radius = Convert.ToDouble(Console.ReadLine());
+
+        Square square = new Square();
+        Console.Write("Имя квадрата: ");
+        square.Name = Console.ReadLine();
+        Console.Write("Длина стороны квадрата: ");
+        square.Side = Convert.ToDouble(Console.ReadLine());
+
+        Triangle triangle = new Triangle();
+        Console.Write("Имя треугольника: ");
+        triangle.Name = Console.ReadLine();
+        Console.Write("Длина стороны треугольника: ");
+        triangle.Side = Convert.ToDouble(Console.ReadLine());
+
+        IPerArea[] shapes = { circle, square, triangle };
+
+        foreach (var shape in shapes) {
+            Console.WriteLine($"{shape.GetType().Name} - Имя: {((Basic)shape).Name}, Периметр: {shape.Perimeter()}, Площадь: {shape.Area()}");
+        }
+    }
+}

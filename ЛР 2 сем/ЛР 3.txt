@@ -1,0 +1,55 @@
+using System;
+using System.Collections.Generic;
+
+class Program
+{
+    static void Main()
+    {
+        string expression;
+        expression = Console.ReadLine ();
+        bool isValid = StackClass(expression);
+        if (isValid == true) {
+            Console.WriteLine ($"Выражение \"{expression}\" является правильным");
+        }
+        else if (isValid == false) {
+            Console.WriteLine ($"Выражение \"{expression}\" является неправильным");
+        }
+    }
+
+    static bool StackClass(string expression)
+    {
+        Stack<char> stack = new Stack<char>();
+        foreach (char c in expression)
+        {
+            if (c == '(' || c == '{' || c == '[')
+            {
+                stack.Push(c);
+            }
+            else if (c == ')' || c == '}' || c == ']')
+            {
+                if (stack.Count == 0)
+                {
+                    return false;
+                }
+
+                char opening = stack.Pop();
+                
+                if (IsMatchingPair(opening, c))
+                {
+                    return true; 
+                }
+                
+                else if (!IsMatchingPair(opening, c))
+                {
+                    return false; 
+                }
+            }
+        }
+        return stack.Count == 0;
+    }
+
+    static bool IsMatchingPair(char opening, char closing)
+    {
+        return (opening == '(' && closing == ')') || (opening == '{' && closing == '}') || (opening == '[' && closing == ']');
+    }
+}

@@ -1,0 +1,50 @@
+//На вход подаётся список числовых значений. Необходимо с помощью множества определить элементы, из которых состоит список. Необходимо выдать частоту появления каждого элемента (делать с dictionary).
+
+using System;
+using System.Collections.Generic;
+
+class Program
+{
+    static void Main()
+    {
+        Console.WriteLine("Введите список чисел через пробел:");
+        string input = Console.ReadLine();
+
+        List<int> numbers = new List<int>();
+        foreach (string s in input.Split(' '))
+        {
+            if (int.TryParse(s, out int number))
+            {
+                numbers.Add(number);
+            }
+        }
+
+        HashSet<int> uniqueNumbers = new HashSet<int>(numbers);
+
+        Dictionary<int, int> frequencyMap = new Dictionary<int, int>();
+
+        foreach (int number in numbers)
+        {
+            if (frequencyMap.ContainsKey(number))
+            {
+                frequencyMap[number]++;
+            }
+            else
+            {
+                frequencyMap[number] = 1;
+            }
+        }
+
+        Console.WriteLine("\nУникальные элементы:");
+        foreach (int uniqueNumber in uniqueNumbers)
+        {
+            Console.WriteLine(uniqueNumber);
+        }
+
+        Console.WriteLine("\nЧастота появления каждого элемента:");
+        foreach (var pair in frequencyMap)
+        {
+            Console.WriteLine($"Элемент: {pair.Key}, Частота: {pair.Value}");
+        }
+    }
+}

@@ -1,0 +1,68 @@
+//На вход подаётся запись, в которой идут числовые значения и знаки (+ - * /). Между знаками пробел. Необходимо с помощью стэка вычислить значение выражения.
+
+using System;
+using System.Collections.Generic;
+
+class Program
+{
+    static void Main()
+    {
+        string expression = Console.ReadLine();
+        Stack<int> stack = new Stack<int>();
+        string[] subs = expression.Split(' ');
+
+        foreach (string sub in subs)
+        {
+            if (int.TryParse(sub, out int num))
+            {
+                stack.Push(num);
+            }
+            else
+            {
+            if (stack.Count < 2)
+            {
+                Console.WriteLine("Недостаточно операндов для выполнения операции.");
+                return;
+            }
+
+            int b = stack.Pop();
+            int a = stack.Pop();
+
+            if (sub == "/" && b == 0)
+            {
+                Console.WriteLine("Деление на ноль невозможно.");
+                return;
+            }
+
+            int result = PerformOperation(a, b, sub);
+            stack.Push(result);
+            }
+        }
+
+        if (stack.Count != 1)
+        {
+            Console.WriteLine("В выражении слишком много операндов или операций.");
+            return;
+        }
+
+        int finalResult = stack.Pop();
+        Console.WriteLine(finalResult);
+    }
+
+    static int PerformOperation(int a, int b, string operation)
+    {
+        switch (operation)
+        {
+            case "+":
+                return a + b;
+            case "-":
+                return a - b;
+            case "*":
+                return a * b;
+            case "/":
+                return a / b;
+            default:
+                return a + b;
+        }
+    }
+}

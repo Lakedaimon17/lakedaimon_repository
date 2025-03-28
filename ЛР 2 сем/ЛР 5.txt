@@ -1,0 +1,88 @@
+//Будет список из элементов класса "Телефон". Необходимо с помощью словаря определить чаще всего используемый оператор.
+В классе телефон:
+Номер телефона, фио, оператор
+
+using System;
+using System.Collections.Generic;
+
+class Program
+{   
+    public class Phone
+    {
+        public string PhoneNumber { get; set; }
+        public string FullName { get; set; }
+        public string Operator { get; set; }
+
+        public Phone(string phoneNumber, string fullName, string operatorName)
+        {
+            PhoneNumber = phoneNumber;
+            FullName = fullName;
+            Operator = operatorName;
+        }
+    }
+    
+    static void Main()
+    {
+        List<Phone> phones = new List<Phone>();
+
+        Console.Write("Введите количество телефонов: ");
+        int count;
+        while (!int.TryParse(Console.ReadLine(), out count) || count <= 0)
+        {
+            Console.WriteLine("Некорректный ввод.");
+            Console.Write("Введите количество телефонов:");
+        }
+
+        for (int i = 0; i < count; i++)
+        {
+            Console.WriteLine($"\nВведите информация для телефона {i + 1}:");
+
+            Console.Write("Номер телефона: ");
+            string phoneNumber = Console.ReadLine();
+
+            Console.Write("ФИО: ");
+            string fullName = Console.ReadLine();
+
+            Console.Write("Оператор: ");
+            string operatorName = Console.ReadLine();
+
+            phones.Add(new Phone(phoneNumber, fullName, operatorName));
+        }
+
+        Dictionary<string, int> operatorCount = new Dictionary<string, int>();
+
+        foreach (var phone in phones)
+        {
+            if (operatorCount.ContainsKey(phone.Operator))
+            {
+                operatorCount[phone.Operator]++;
+            }
+            else
+            {
+                operatorCount[phone.Operator] = 1;
+            }
+        }
+
+        string mostPopularOperator = null;
+        int maxCount = 0;
+
+        foreach (var pair in operatorCount)
+        {
+            if (pair.Value > maxCount)
+            {
+                mostPopularOperator = pair.Key;
+                maxCount = pair.Value;
+            }
+        }
+
+        if (mostPopularOperator != null)
+        {
+            Console.WriteLine($"\nСамый распространённый оператор: {mostPopularOperator} " +
+                              $"(количество номеров: {maxCount})");
+        }
+        else
+        {
+            Console.WriteLine("\nСписок пуст.");
+        }
+    }
+}

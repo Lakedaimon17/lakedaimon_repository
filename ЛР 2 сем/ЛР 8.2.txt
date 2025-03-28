@@ -1,0 +1,22 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+class Program
+{
+    static void Main()
+    {
+        List<string> strings = new List<string>
+        {
+            "apple", "mango", "banana", "melon", "pear", "Milk", "mushroom", "grape"
+        };
+
+        var filteredStrings = strings.Where(s => s.StartsWith("m", StringComparison.OrdinalIgnoreCase)).ToList();
+
+        Console.WriteLine("Строки, начинающиеся на 'm' или 'M':");
+        foreach (var str in filteredStrings)
+        {
+            Console.WriteLine(str);
+        }
+    }
+}

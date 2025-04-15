@@ -1,0 +1,40 @@
+//Алгоритм Флойда
+
+using System;
+class Floyd {
+  static void Main() {
+    int n, i, j, k;
+    Console.WriteLine ("Введите количество вершин графа");
+    n = Convert.ToInt32(Console.ReadLine());
+    int[,] graph = new int[n,n];
+    Console.WriteLine ("Введите матрицу весов графа");
+    for (i=0; i<n; i++)
+    {
+        for (j=0; j<n; j++)
+        {
+            graph[i,j] = Convert.ToInt32(Console.ReadLine());
+        }
+    }
+    for (i=0; i<n; i++)
+    {
+        for (j=0; j<n; j++)
+        {
+            for (k=0; k<n; k++)
+            {
+                if (graph[j,k] > graph [j,i] + graph [i,k])
+                {
+                    graph[j,k] = graph [j,i] + graph [i,k];
+                }
+            }
+        }
+    }
+    for (i=0; i<n; i++)
+    {
+        for (j=0; j<n; j++)
+        {
+           Console.Write(graph[i,j] + "\t");
+        }
+        Console.WriteLine();
+    }
+  }
+}

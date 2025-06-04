@@ -1,3 +1,5 @@
+//Коммивояжёр (метод Литтла)
+
 using System;
 using System.Collections.Generic;
 

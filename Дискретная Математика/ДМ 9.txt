@@ -1,0 +1,97 @@
+//Алгоритм Форда-Фалкерсона
+
+using System;
+using System.Collections.Generic;
+
+public class FordFulkerson
+{
+    private readonly int[,] capacity;
+    private readonly int nodeCount;
+    private int[,] residual;
+    private int[] parent;
+    private bool[] visited;
+
+    public FordFulkerson(int[,] capacity)
+    {
+        this.capacity = capacity;
+        nodeCount = capacity.GetLength(0);
+        residual = new int[nodeCount, nodeCount];
+        Array.Copy(capacity, residual, capacity.Length);
+        parent = new int[nodeCount];
+        visited = new bool[nodeCount];
+    }
+
+    public int ComputeMaxFlow(int source, int sink)
+    {
+        int maxFlow = 0;
+        
+        while (FindAugmentingPath(source, sink))
+        {
+            int pathFlow = int.MaxValue;
+            for (int v = sink; v != source; v = parent[v])
+            {
+                int u = parent[v];
+                pathFlow = Math.Min(pathFlow, residual[u, v]);
+            }
+
+            for (int v = sink; v != source; v = parent[v])
+            {
+                int u = parent[v];
+                residual[u, v] -= pathFlow;
+                residual[v, u] += pathFlow;
+            }
+
+            maxFlow += pathFlow;
+        }
+
+        return maxFlow;
+    }
+
+    private bool FindAugmentingPath(int source, int sink)
+    {
+        Array.Fill(parent, -1);
+        Array.Fill(visited, false);
+        
+        Queue<int> queue = new Queue<int>();
+        queue.Enqueue(source);
+        visited[source] = true;
+
+        while (queue.Count > 0)
+        {
+            int u = queue.Dequeue();
+
+            for (int v = 0; v < nodeCount; v++)
+            {
+                if (!visited[v] && residual[u, v] > 0)
+                {
+                    parent[v] = u;
+                    visited[v] = true;
+                    
+                    if (v == sink)
+                        return true;
+                    
+                    queue.Enqueue(v);
+                }
+            }
+        }
+
+        return false;
+    }
+
+    public static void Main()
+    {
+        int[,] graph = {
+            {0, 20, 30, 10, 0},
+            {0, 0, 40, 0, 30},
+            {0, 0, 0, 10, 20},
+            {0, 0, 0, 0, 20},
+            {0, 0, 0, 0, 0}
+        };
+
+        FordFulkerson ff = new FordFulkerson(graph);
+        int source = 0;
+        int sink = 4;
+        
+        Console.WriteLine($"Максимальный поток: {ff.ComputeMaxFlow(source, sink)}");
+    }
+}

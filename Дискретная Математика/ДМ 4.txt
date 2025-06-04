@@ -1,0 +1,124 @@
+//Алгоритм Дейкстры
+
+using System;
+using System.Collections.Generic;
+
+class DijkstraAlgorithm
+{
+    public void FindShortestPath(int[,] weightMatrix, int startVertex, int endVertex)
+    {
+        int vertexCount = weightMatrix.GetLength(0);
+        
+        if (startVertex < 0 || startVertex >= vertexCount || 
+            endVertex < 0 || endVertex >= vertexCount)
+        {
+            Console.WriteLine("Некорректные начальная или конечная вершины");
+            return;
+        }
+
+        int[] distances = new int[vertexCount];
+        int[] previous = new int[vertexCount];
+        bool[] visited = new bool[vertexCount];
+
+        for (int i = 0; i < vertexCount; i++)
+        {
+            distances[i] = int.MaxValue;
+            previous[i] = -1;
+        }
+
+        distances[startVertex] = 0;
+
+        for (int count = 0; count < vertexCount - 1; count++)
+        {
+            int u = GetMinDistanceVertex(distances, visited);
+            if (u == -1) break;
+
+            visited[u] = true;
+
+            for (int v = 0; v < vertexCount; v++)
+            {
+                if (!visited[v] && weightMatrix[u, v] != 0 && 
+                    distances[u] != int.MaxValue && 
+                    distances[u] + weightMatrix[u, v] < distances[v])
+                {
+                    distances[v] = distances[u] + weightMatrix[u, v];
+                    previous[v] = u;
+                }
+            }
+        }
+
+        PrintShortestPath(distances, previous, startVertex, endVertex);
+    }
+
+    private int GetMinDistanceVertex(int[] distances, bool[] visited)
+    {
+        int minDistance = int.MaxValue;
+        int minVertex = -1;
+
+        for (int v = 0; v < distances.Length; v++)
+        {
+            if (!visited[v] && distances[v] <= minDistance)
+            {
+                minDistance = distances[v];
+                minVertex = v;
+            }
+        }
+
+        return minVertex;
+    }
+
+    private void PrintShortestPath(int[] distances, int[] previous, int startVertex, int endVertex)
+    {
+        if (distances[endVertex] == int.MaxValue)
+        {
+            Console.WriteLine($"Пути из вершины {startVertex} в вершину {endVertex} не существует");
+            return;
+        }
+
+        Console.WriteLine($"Кратчайшее расстояние от {startVertex} до {endVertex}: {distances[endVertex]}");
+        
+        Stack<int> path = new Stack<int>();
+        int current = endVertex;
+
+        while (current != -1)
+        {
+            path.Push(current);
+            current = previous[current];
+        }
+
+        Console.Write("Путь: ");
+        while (path.Count > 0)
+        {
+            Console.Write(path.Pop());
+            if (path.Count > 0) Console.Write(" -> ");
+        }
+        Console.WriteLine();
+    }
+}
+
+class Program
+{
+    static void Main()
+    {
+        int[,] weightMatrix = {
+            {0, 4, 0, 0, 0, 0, 0, 8, 0},
+            {4, 0, 8, 0, 0, 0, 0, 11, 0},
+            {0, 8, 0, 7, 0, 4, 0, 0, 2},
+            {0, 0, 7, 0, 9, 14, 0, 0, 0},
+            {0, 0, 0, 9, 0, 10, 0, 0, 0},
+            {0, 0, 4, 14, 10, 0, 2, 0, 0},
+            {0, 0, 0, 0, 0, 2, 0, 1, 6},
+            {8, 11, 0, 0, 0, 0, 1, 0, 7},
+            {0, 0, 2, 0, 0, 0, 6, 7, 0}
+        };
+
+        Console.Write("Введите начальную вершину: ");
+        int start = int.Parse(Console.ReadLine());
+        
+        Console.Write("Введите конечную вершину: ");
+        int end = int.Parse(Console.ReadLine());
+
+        var dijkstra = new DijkstraAlgorithm();
+        dijkstra.FindShortestPath(weightMatrix, start, end);
+    }
+}

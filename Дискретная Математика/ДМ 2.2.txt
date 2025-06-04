@@ -1,0 +1,118 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+class Kruskal
+{
+    class Edge : IComparable<Edge>
+    {
+        public int Source { get; set; }
+        public int Destination { get; set; }
+        public int Weight { get; set; }
+
+        public int CompareTo(Edge other)
+        {
+            return Weight.CompareTo(other.Weight);
+        }
+    }
+
+    private int[] parent;
+    private int[] rank;
+
+    public int FindMinimumSpanningTree(int[,] weightMatrix)
+    {
+        int vertexCount = weightMatrix.GetLength(0);
+        if (vertexCount == 0) return 0;
+
+        parent = new int[vertexCount];
+        rank = new int[vertexCount];
+        for (int i = 0; i < vertexCount; i++)
+        {
+            parent[i] = i;
+        }
+
+        List<Edge> edges = new List<Edge>();
+        for (int i = 0; i < vertexCount; i++)
+        {
+            for (int j = i + 1; j < vertexCount; j++)
+            {
+                if (weightMatrix[i, j] > 0)
+                {
+                    edges.Add(new Edge { Source = i, Destination = j, Weight = weightMatrix[i, j] });
+                }
+            }
+        }
+
+        edges.Sort();
+
+        int mstWeight = 0;
+        int edgesAdded = 0;
+
+        foreach (var edge in edges)
+        {
+            if (edgesAdded == vertexCount - 1) break;
+
+            int rootSrc = Find(edge.Source);
+            int rootDest = Find(edge.Destination);
+
+            if (rootSrc != rootDest)
+            {
+                mstWeight += edge.Weight;
+                Union(rootSrc, rootDest);
+                edgesAdded++;
+            }
+        }
+
+        return mstWeight;
+    }
+
+    private int Find(int x)
+    {
+        if (parent[x] != x)
+        {
+            parent[x] = Find(parent[x]);
+        }
+        return parent[x];
+    }
+
+    private void Union(int x, int y)
+    {
+        int rootX = Find(x);
+        int rootY = Find(y);
+
+        if (rootX != rootY)
+        {
+            if (rank[rootX] < rank[rootY])
+            {
+                parent[rootX] = rootY;
+            }
+            else if (rank[rootX] > rank[rootY])
+            {
+                parent[rootY] = rootX;
+            }
+            else
+            {
+                parent[rootY] = rootX;
+                rank[rootX]++;
+            }
+        }
+    }
+}
+
+class Program
+{
+    static void Main()
+    {
+        int[,] weightMatrix = {
+            {0, 2, 0, 6, 0},
+            {2, 0, 3, 8, 5},
+            {0, 3, 0, 0, 7},
+            {6, 8, 0, 0, 9},
+            {0, 5, 7, 9, 0}
+        };
+
+        var kruskal = new Kruskal();
+        int mstWeight = kruskal.FindMinimumSpanningTree(weightMatrix);
+        Console.WriteLine($"Вес минимального остовного дерева: {mstWeight}");
+    }
+}

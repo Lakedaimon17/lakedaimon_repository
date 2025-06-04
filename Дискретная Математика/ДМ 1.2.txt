@@ -1,0 +1,94 @@
+//Проверка на связность при помощи Union-Find (на вход поступает матрица). Выдавать кол-во компонент связности исходного графа.
+
+using System;
+
+class GraphUFChecker
+{
+    private int[] parent;
+    private int[] rank;
+
+    public int CountComponents(int[,] matrix)
+    {
+        int vertexCount = matrix.GetLength(0);
+        parent = new int[vertexCount];
+        rank = new int[vertexCount];
+        
+        for (int i = 0; i < vertexCount; i++)
+        {
+            parent[i] = i;
+            rank[i] = 0;
+        }
+
+        for (int i = 0; i < vertexCount; i++)
+        {
+            for (int j = i + 1; j < vertexCount; j++)
+            {
+                if (matrix[i, j] == 1)
+                {
+                    Union(i, j);
+                }
+            }
+        }
+
+        int components = 0;
+        for (int i = 0; i < vertexCount; i++)
+        {
+            if (Find(i) == i)
+            {
+                components++;
+            }
+        }
+
+        return components;
+    }
+
+    private int Find(int x)
+    {
+        if (parent[x] != x)
+        {
+            parent[x] = Find(parent[x]);
+        }
+        return parent[x];
+    }
+
+    private void Union(int x, int y)
+    {
+        int rootX = Find(x);
+        int rootY = Find(y);
+
+        if (rootX != rootY)
+        {
+            if (rank[rootX] < rank[rootY])
+            {
+                parent[rootX] = rootY;
+            }
+            else if (rank[rootX] > rank[rootY])
+            {
+                parent[rootY] = rootX;
+            }
+            else
+            {
+                parent[rootY] = rootX;
+                rank[rootX]++;
+            }
+        }
+    }
+}
+
+class Program
+{
+    static void Main()
+    {
+        int[,] matrix = {
+            {0, 1, 0, 0, 0},
+            {1, 0, 0, 0, 0},
+            {0, 0, 0, 1, 0},
+            {0, 0, 1, 0, 0},
+            {0, 0, 0, 0, 0}
+        };
+
+        var checker = new GraphUFChecker();
+        int components = checker.CountComponents(matrix);
+        Console.WriteLine($"Число компонент связности: {components}");
+    }
+}

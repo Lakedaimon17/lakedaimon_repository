@@ -1,0 +1,93 @@
+//Алгоритм Форда-Беллмана
+
+using System;
+using System.Collections.Generic;
+
+class FordBellmanAlgorithm
+{
+    public void FindShortestPaths(int[,] graph, int source)
+    {
+        int verticesCount = graph.GetLength(0);
+        int[] distances = new int[verticesCount];
+        int[] predecessors = new int[verticesCount];
+        for (int i = 0; i < verticesCount; i++)
+        {
+            distances[i] = int.MaxValue;
+            predecessors[i] = -1;
+        }
+        distances[source] = 0;
+        for (int i = 1; i < verticesCount; i++)
+        {
+            for (int u = 0; u < verticesCount; u++)
+            {
+                for (int v = 0; v < verticesCount; v++)
+                {
+                    if (graph[u, v] != 0 && distances[u] != int.MaxValue && 
+                        distances[u] + graph[u, v] < distances[v])
+                    {
+                        distances[v] = distances[u] + graph[u, v];
+                        predecessors[v] = u;
+                    }
+                }
+            }
+        }
+        for (int u = 0; u < verticesCount; u++)
+        {
+            for (int v = 0; v < verticesCount; v++)
+            {
+                if (graph[u, v] != 0 && distances[u] != int.MaxValue && 
+                    distances[u] + graph[u, v] < distances[v])
+                {
+                    Console.WriteLine("Граф содержит цикл отрицательного веса!");
+                    return;
+                }
+            }
+        }
+        PrintSolution(distances, predecessors, source);
+    }
+
+    private void PrintSolution(int[] distances, int[] predecessors, int source)
+    {
+        int verticesCount = distances.Length;
+        Console.WriteLine("Вершина\tРасстояние от источника\tПуть");
+
+        for (int i = 0; i < verticesCount; i++)
+        {
+            if (i != source)
+            {
+                Console.Write($"{i}\t{distances[i]}\t\t\t");
+                PrintPath(predecessors, i);
+                Console.WriteLine();
+            }
+        }
+    }
+
+    private void PrintPath(int[] predecessors, int currentVertex)
+    {
+        if (currentVertex == -1)
+            return;
+
+        PrintPath(predecessors, predecessors[currentVertex]);
+        Console.Write($"{currentVertex} ");
+    }
+}
+
+class Program
+{
+    static void Main()
+    {
+        int[,] graph = {
+            {0, -1, 4, 0, 0},
+            {0, 0, 3, 2, 2},
+            {0, 0, 0, 0, 0},
+            {0, 1, 5, 0, 0},
+            {0, 0, 0, -3, 0}
+        };
+
+        Console.Write("Введите исходную вершину: ");
+        int source = int.Parse(Console.ReadLine())-1;
+
+        var fordBellman = new FordBellmanAlgorithm();
+        fordBellman.FindShortestPaths(graph, source);
+    }
+}

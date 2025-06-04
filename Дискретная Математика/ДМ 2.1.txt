@@ -1,0 +1,66 @@
+//Алгоритм Прима
+
+using System;
+using System.Collections.Generic;
+
+class Prima
+{
+    public int FindMinimumSpanningTree(int[,] weightMatrix)
+    {
+        int vertexCount = weightMatrix.GetLength(0);
+        if (vertexCount == 0) return 0;
+
+        bool[] inMST = new bool[vertexCount];
+        int[] minEdge = new int[vertexCount];
+        for (int i = 0; i < vertexCount; i++)
+        {
+            minEdge[i] = int.MaxValue;
+        }
+
+        minEdge[0] = 0;
+        int totalWeight = 0;
+
+        for (int count = 0; count < vertexCount; count++)
+        {
+            int u = -1;
+            for (int v = 0; v < vertexCount; v++)
+            {
+                if (!inMST[v] && (u == -1 || minEdge[v] < minEdge[u]))
+                {
+                    u = v;
+                }
+            }
+
+            inMST[u] = true;
+            totalWeight += minEdge[u];
+
+            for (int v = 0; v < vertexCount; v++)
+            {
+                if (weightMatrix[u, v] > 0 && !inMST[v] && weightMatrix[u, v] < minEdge[v])
+                {
+                    minEdge[v] = weightMatrix[u, v];
+                }
+            }
+        }
+
+        return totalWeight;
+    }
+}
+
+class Program
+{
+    static void Main()
+    {
+        int[,] weightMatrix = {
+            {0, 2, 0, 6, 0},
+            {2, 0, 3, 8, 5},
+            {0, 3, 0, 0, 7},
+            {6, 8, 0, 0, 9},
+            {0, 5, 7, 9, 0}
+        };
+
+        var prim = new Prima();
+        int mstWeight = prim.FindMinimumSpanningTree(weightMatrix);
+        Console.WriteLine($"Вес минимального остовного дерева: {mstWeight}");
+    }
+}

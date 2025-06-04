@@ -1,0 +1,145 @@
+using System;
+using System.Collections.Generic;
+
+class Little 
+{
+    private static List<(int from, int to)> path = new List<(int, int)>();
+
+    static void Main() 
+    {
+        Console.WriteLine("Введите количество вершин графа");
+        int n = Convert.ToInt32(Console.ReadLine());
+        int[,] graph = new int[n, n];
+        
+        Console.WriteLine("Введите матрицу весов графа (по строкам):");
+        for (int i = 0; i < n; i++)
+        {
+            for (int j = 0; j < n; j++)
+            {
+                graph[i, j] = Convert.ToInt32(Console.ReadLine());
+            }
+        }
+
+        SolveTSP(graph, n);
+        
+        Console.WriteLine("\nОптимальный путь:");
+        foreach (var edge in path)
+        {
+            Console.WriteLine($"{edge.from + 1} -> {edge.to + 1}");
+        }
+    }
+
+    static void SolveTSP(int[,] graph, int size)
+    {
+        if (size == 2)
+        {
+            for (int i = 0; i < graph.GetLength(0); i++)
+            {
+                for (int j = 0; j < graph.GetLength(1); j++)
+                {
+                    if (graph[i, j] != -1)
+                    {
+                        path.Add((i, j));
+                        return;
+                    }
+                }
+            }
+            return;
+        }
+        for (int i = 0; i < size; i++)
+        {
+            int min = int.MaxValue;
+            for (int j = 0; j < size; j++)
+            {
+                if (graph[i, j] != -1 && graph[i, j] < min)
+                {
+                    min = graph[i, j];
+                }
+            }
+            
+            if (min != int.MaxValue)
+            {
+                for (int j = 0; j < size; j++)
+                {
+                    if (graph[i, j] != -1)
+                    {
+                        graph[i, j] -= min;
+                    }
+                }
+            }
+        }
+        for (int j = 0; j < size; j++)
+        {
+            int min = int.MaxValue;
+            for (int i = 0; i < size; i++)
+            {
+                if (graph[i, j] != -1 && graph[i, j] < min)
+                {
+                    min = graph[i, j];
+                }
+            }
+            
+            if (min != int.MaxValue)
+            {
+                for (int i = 0; i < size; i++)
+                {
+                    if (graph[i, j] != -1)
+                    {
+                        graph[i, j] -= min;
+                    }
+                }
+            }
+        }
+        List<(int i, int j, int coef)> zeroCoefficients = new List<(int, int, int)>();
+        for (int i = 0; i < size; i++) 
+        {
+            for (int j = 0; j < size; j++) 
+            {
+                if (graph[i, j] == 0) 
+                {
+                    int rowMin = int.MaxValue;
+                    for (int k = 0; k < size; k++) 
+                    {
+                        if (k != j && graph[i, k] != -1 && graph[i, k] < rowMin) 
+                            rowMin = graph[i, k];
+                    }
+                    int colMin = int.MaxValue;
+                    for (int k = 0; k < size; k++) 
+                    {
+                        if (k != i && graph[k, j] != -1 && graph[k, j] < colMin) 
+                            colMin = graph[k, j];
+                    }
+                    zeroCoefficients.Add((i, j, 
+                        (rowMin == int.MaxValue ? 0 : rowMin) + 
+                        (colMin == int.MaxValue ? 0 : colMin)));
+                }
+            }
+        }
+        if (zeroCoefficients.Count == 0)
+        {
+            Console.WriteLine("Решение не найдено!");
+            return;
+        }
+        var maxCoef = zeroCoefficients[0];
+        foreach (var item in zeroCoefficients) 
+        {
+            if (item.coef > maxCoef.coef) 
+                maxCoef = item;
+        }
+        path.Add((maxCoef.i, maxCoef.j));
+        int[,] newGraph = new int[size - 1, size - 1];
+        graph[maxCoef.j, maxCoef.i] = -1;
+        for (int i = 0, newI = 0; i < size; i++) 
+        {
+            if (i == maxCoef.i) continue;
+            for (int j = 0, newJ = 0; j < size; j++) 
+            {
+                if (j == maxCoef.j) continue;
+                newGraph[newI, newJ] = graph[i, j];
+                newJ++;
+            }
+            newI++;
+        }
+        SolveTSP(newGraph, size - 1);
+    }
+}

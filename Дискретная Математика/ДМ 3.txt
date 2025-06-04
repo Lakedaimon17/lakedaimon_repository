@@ -1,0 +1,136 @@
+//Нахождение мостов через остовное дерево.
+
+using System;
+using System.Collections.Generic;
+
+class BridgeFinder
+{
+    private int[,] adjacencyMatrix;
+    private int vertexCount;
+    private int time = 0;
+    
+    private int[] disc;
+    private int[] low;
+    private int[] parent;
+    private bool[] visited;
+    
+    private List<Tuple<int, int>> spanningTreeEdges;
+
+    public List<Tuple<int, int>> FindBridges(int[,] matrix)
+    {
+        if (matrix == null || matrix.GetLength(0) != matrix.GetLength(1))
+            throw new ArgumentException("Invalid adjacency matrix");
+
+        adjacencyMatrix = matrix;
+        vertexCount = matrix.GetLength(0);
+        InitializeDataStructures();
+        spanningTreeEdges = new List<Tuple<int, int>>();
+
+        BuildSpanningTree(0);
+
+        List<Tuple<int, int>> bridges = new List<Tuple<int, int>>();
+        ResetDataStructures();
+
+        for (int i = 0; i < vertexCount; i++)
+        {
+            if (!visited[i])
+            {
+                FindBridgesDFS(i, bridges);
+            }
+        }
+
+        return bridges;
+    }
+
+    private void BuildSpanningTree(int u)
+    {
+        visited[u] = true;
+
+        for (int v = 0; v < vertexCount; v++)
+        {
+            if (adjacencyMatrix[u, v] == 1 && !visited[v])
+            {
+                spanningTreeEdges.Add(Tuple.Create(u, v));
+                BuildSpanningTree(v);
+            }
+        }
+    }
+
+    private void FindBridgesDFS(int u, List<Tuple<int, int>> bridges)
+    {
+        visited[u] = true;
+        disc[u] = low[u] = ++time;
+
+        foreach (var edge in spanningTreeEdges)
+        {
+            if (edge.Item1 == u || edge.Item2 == u)
+            {
+                int v = edge.Item1 == u ? edge.Item2 : edge.Item1;
+
+                if (!visited[v])
+                {
+                    parent[v] = u;
+                    FindBridgesDFS(v, bridges);
+
+                    low[u] = Math.Min(low[u], low[v]);
+
+                    if (low[v] > disc[u])
+                    {
+                        bridges.Add(Tuple.Create(u, v));
+                    }
+                }
+                else if (v != parent[u])
+                {
+                    low[u] = Math.Min(low[u], disc[v]);
+                }
+            }
+        }
+    }
+
+    private void InitializeDataStructures()
+    {
+        disc = new int[vertexCount];
+        low = new int[vertexCount];
+        parent = new int[vertexCount];
+        visited = new bool[vertexCount];
+
+        for (int i = 0; i < vertexCount; i++)
+        {
+            parent[i] = -1;
+            visited[i] = false;
+        }
+    }
+
+    private void ResetDataStructures()
+    {
+        time = 0;
+        for (int i = 0; i < vertexCount; i++)
+        {
+            disc[i] = 0;
+            low[i] = 0;
+            parent[i] = -1;
+            visited[i] = false;
+        }
+    }
+}
+
+class Program
+{
+    static void Main()
+    {
+        int[,] matrix = {
+            {0, 1, 1, 0, 0},
+            {1, 0, 1, 0, 0},
+            {1, 1, 0, 1, 0},
+            {0, 0, 1, 0, 1},
+            {0, 0, 0, 1, 0}
+        };
+
+        var finder = new BridgeFinder();
+        var bridges = finder.FindBridges(matrix);
+        foreach (var bridge in bridges)
+        {
+            Console.WriteLine($"{bridge.Item1} - {bridge.Item2}");
+        }
+    }
+}

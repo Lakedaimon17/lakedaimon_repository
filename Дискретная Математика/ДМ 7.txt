@@ -1,0 +1,138 @@
+//Волновой алгоритм
+
+using System;
+using System.Collections.Generic;
+
+public struct Point
+{
+    public int X { get; }
+    public int Y { get; }
+    public Point(int x, int y)
+    {
+        X = x;
+        Y = y;
+    }
+}
+
+public class WavePathfinder
+{
+    private readonly int[,] _grid;
+    private readonly int _width;
+    private readonly int _height;
+    private int[,] _waveMatrix;
+    private static readonly Point[] OrthogonalDirections = 
+    {
+        new Point(0, 1),
+        new Point(1, 0),
+        new Point(0, -1),
+        new Point(-1, 0)
+    };
+    
+    public WavePathfinder(int[,] grid)
+    {
+        _grid = grid;
+        _width = grid.GetLength(0);
+        _height = grid.GetLength(1);
+        _waveMatrix = new int[_width, _height];
+    }
+    
+    public List<Point> FindOrthogonalPath(Point start, Point end)
+    {
+        if (!IsValid(start) || !IsValid(end) || 
+            _grid[start.X, start.Y] == 1 || _grid[end.X, end.Y] == 1)
+        {
+            return null;
+        }
+        for (int x = 0; x < _width; x++)
+            for (int y = 0; y < _height; y++)
+                _waveMatrix[x, y] = -1;
+        Queue<Point> queue = new Queue<Point>();
+        queue.Enqueue(start);
+        _waveMatrix[start.X, start.Y] = 0;
+        bool pathFound = false;
+        while (queue.Count > 0 && !pathFound)
+        {
+            Point current = queue.Dequeue();
+            foreach (Point dir in OrthogonalDirections)
+            {
+                Point neighbor = new Point(current.X + dir.X, current.Y + dir.Y);
+                if (IsValid(neighbor) && _grid[neighbor.X, neighbor.Y] == 0 && 
+                    _waveMatrix[neighbor.X, neighbor.Y] == -1)
+                {
+                    _waveMatrix[neighbor.X, neighbor.Y] = _waveMatrix[current.X, current.Y] + 1;
+                    queue.Enqueue(neighbor);
+
+                    if (neighbor.X == end.X && neighbor.Y == end.Y)
+                    {
+                        pathFound = true;
+                        break;
+                    }
+                }
+            }
+        }
+        if (_waveMatrix[end.X, end.Y] == -1)
+            return null;
+        return ReconstructPath(start, end);
+    }
+
+    private bool IsValid(Point p)
+    {
+        return p.X >= 0 && p.X < _width && p.Y >= 0 && p.Y < _height;
+    }
+    
+    private List<Point> ReconstructPath(Point start, Point end)
+    {
+        List<Point> path = new List<Point>();
+        Point current = end;
+        path.Add(current);
+
+        while (current.X != start.X || current.Y != start.Y)
+        {
+            foreach (Point dir in OrthogonalDirections)
+            {
+                Point neighbor = new Point(current.X + dir.X, current.Y + dir.Y);
+
+                if (IsValid(neighbor) && 
+                    _waveMatrix[neighbor.X, neighbor.Y] == _waveMatrix[current.X, current.Y] - 1)
+                {
+                    current = neighbor;
+                    path.Add(current);
+                    break;
+                }
+            }
+        }
+
+        path.Reverse();
+        return path;
+    }
+}
+
+class Program
+{
+    static void Main()
+    {
+        // 0 - свободная клетка, 1 - препятствие
+        int[,] grid = {
+            {0, 0, 0, 0, 0},
+            {0, 1, 1, 0, 0},
+            {0, 1, 0, 0, 0},
+            {0, 1, 0, 1, 0},
+            {0, 0, 0, 1, 0}
+        };
+        WavePathfinder pathfinder = new WavePathfinder(grid);
+        Point start = new Point(0, 0);
+        Point end = new Point(4, 4);
+        List<Point> path = pathfinder.FindOrthogonalPath(start, end);
+        if (path != null)
+        {
+            foreach (Point p in path)
+            {
+                Console.WriteLine($"({p.X}, {p.Y})");
+            }
+        }
+        else
+        {
+            Console.WriteLine("Путь не найден!");
+        }
+    }
+}

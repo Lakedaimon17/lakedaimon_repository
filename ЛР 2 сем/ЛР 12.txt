@@ -1,0 +1,143 @@
+//Класс телефон, в котором марка, год выпуска, страна использования. С использованием библиотеки LINQ необходимо сформировать запросы, которые позволяют работать с базой данной телефонов.
+Первый запрос: сгруппировать телефоны по стране.
+Второй запрос: выдать телефоны с заданным годом выпуска.
+Трети запрос: сгруппировать телефоны по марке.
+Будет меню с заполнением и выборка с LINQ. 
+
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+class Phone
+{
+    public string Brand { get; set; }
+    public int Year { get; set; }
+    public string Country { get; set; }
+
+    public Phone(string brand, int year, string country)
+    {
+        Brand = brand;
+        Year = year;
+        Country = country;
+    }
+
+    public override string ToString()
+    {
+        return $"{Brand} ({Year}), страна: {Country}";
+    }
+}
+
+class Program
+{
+    static List<Phone> phones = new List<Phone>();
+
+    static void Main(string[] args)
+    {
+        while (true)
+        {
+            Console.WriteLine("\nМеню:");
+            Console.WriteLine("1. Добавить телефон");
+            Console.WriteLine("2. Сгруппировать телефоны по стране");
+            Console.WriteLine("3. Найти телефоны по году выпуска");
+            Console.WriteLine("4. Сгруппировать телефоны по марке");
+            Console.WriteLine("5. Выход");
+
+            Console.Write("Выберите действие: ");
+            string choice = Console.ReadLine();
+
+            switch (choice)
+            {
+                case "1":
+                    AddPhone();
+                    break;
+                case "2":
+                    GroupByCountry();
+                    break;
+                case "3":
+                    FindByYear();
+                    break;
+                case "4":
+                    GroupByBrand();
+                    break;
+                case "5":
+                    return;
+                default:
+                    Console.WriteLine("Неверный выбор. Попробуйте снова.");
+                    break;
+            }
+        }
+    }
+
+    static void AddPhone()
+    {
+        Console.Write("Введите марку телефона: ");
+        string brand = Console.ReadLine();
+
+        Console.Write("Введите год выпуска: ");
+        int year = int.Parse(Console.ReadLine());
+
+        Console.Write("Введите страну использования: ");
+        string country = Console.ReadLine();
+
+        phones.Add(new Phone(brand, year, country));
+    }
+
+    static void GroupByCountry()
+    {
+        var groupedPhones = from phone in phones
+                            group phone by phone.Country into countryGroup
+                            orderby countryGroup.Key
+                            select countryGroup;
+
+        Console.WriteLine("\nТелефоны, сгруппированные по стране:");
+        foreach (var group in groupedPhones)
+        {
+            Console.WriteLine($"\nСтрана: {group.Key}");
+            foreach (var phone in group)
+            {
+                Console.WriteLine($"  {phone}");
+            }
+        }
+    }
+
+    static void FindByYear()
+    {
+        Console.Write("Введите год выпуска для поиска: ");
+        int year = int.Parse(Console.ReadLine());
+
+        var selectedPhones = from phone in phones
+                             where phone.Year == year
+                             orderby phone.Brand
+                             select phone;
+
+        Console.WriteLine($"\nТелефоны {year} года выпуска:");
+        if (selectedPhones.Any())
+        {
+            foreach (var phone in selectedPhones)
+            Console.WriteLine(phone);
+        }
+        else
+        {
+            Console.WriteLine("Телефонов с таким годом выпуска не найдено.");
+        }
+    }
+
+    static void GroupByBrand()
+    {
+        var groupedPhones = from phone in phones
+                           group phone by phone.Brand into brandGroup
+                           orderby brandGroup.Key
+                           select brandGroup;
+
+        Console.WriteLine("\nТелефоны, сгруппированные по марке:");
+        foreach (var group in groupedPhones)
+        {
+            Console.WriteLine($"\nМарка: {group.Key}");
+            foreach (var phone in group)
+            {
+                Console.WriteLine($"  Год: {phone.Year}, страна: {phone.Country}");
+            }
+        }
+    }
+}

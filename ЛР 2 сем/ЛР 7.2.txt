@@ -1,0 +1,79 @@
+//Идут гонки лошадей. Каждый объект характеризуется начальным положением и именем лошади (нач. положение по оси x одинаковое). В каждый момент времени (интервал задаётся пользователем), за счёт рандомного изменения скорости, положение лошади меняется. У вас есть значение положения финиша. Обработать событие победы одной из лошадей. 
+
+using System;
+using System.Threading;
+
+class Horse
+{
+    public string Name { get; }
+    public int Position { get; private set; }
+    public Random Random { get; }
+    public int FinishLine { get; }
+
+    public event Action<Horse> OnWin;
+
+    public Horse(string name, int finishLine, Random random)
+    {
+        Name = name;
+        FinishLine = finishLine;
+        Random = random;
+    }
+
+    public void Move()
+    {
+        Position += Random.Next(1, 6);
+        
+        if (Position >= FinishLine)
+        {
+            OnWin?.Invoke(this);
+        }
+    }
+}
+
+class Program
+{
+    static void Main()
+    {
+        Console.Write("Введите количество лошадей: ");
+        int horseCount = int.Parse(Console.ReadLine());
+        
+        Console.Write("Введите позицию финиша: ");
+        int finishLine = int.Parse(Console.ReadLine());
+        
+        Console.Write("Введите интервал между шагами (мс): ");
+        int interval = int.Parse(Console.ReadLine());
+
+        Random random = new Random();
+        Horse[] horses = new Horse[horseCount];
+        bool raceFinished = false;
+
+        for (int i = 0; i < horseCount; i++)
+        {
+            horses[i] = new Horse($"Лошадь {i+1}", finishLine, random);
+            horses[i].OnWin += (winner) => 
+            {
+                if (!raceFinished)
+                {
+                    raceFinished = true;
+                    Console.WriteLine($"\n{winner.Name} победила!");
+                }
+            };
+        }
+
+        Console.WriteLine("\nГонка началась!");
+        
+        while (!raceFinished)
+        {
+            Console.WriteLine("\nНовый круг гонки:");
+            foreach (var horse in horses)
+            {
+                horse.Move();
+                Console.WriteLine($"{horse.Name}: {horse.Position}");
+            }
+            
+            Thread.Sleep(interval);
+        }
+
+        Console.WriteLine("Гонка завершена!");
+    }
+}

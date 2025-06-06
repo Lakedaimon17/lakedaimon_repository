@@ -1,0 +1,176 @@
+//База данных - библиотека. Обязателен Struct. Элементы, которые характеризуют книгу:
+Автор, наименование, год издания, издательство, дата выдачи - дата возврата.
+Необходимо выдать книги, которые ни разу не выдавались.
+Необходимо выдать книги, которые не возвращены в библиотеку.
+Книга может несколько раз выдаваться и возвращаться.
+Можно дать книге номер (dictionary).
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+public struct Book
+{
+    public int Id;
+    public string Author;
+    public string Title;
+    public int Year;
+    public string Publisher;
+    
+    public Book(int id, string author, string title, int year, string publisher)
+    {
+        Id = id;
+        Author = author;
+        Title = title;
+        Year = year;
+        Publisher = publisher;
+    }
+}
+
+public struct LoanRecord
+{
+    public int BookId;
+    public DateTime IssueDate;
+    public DateTime? ReturnDate;
+    
+    public LoanRecord(int bookId, DateTime issueDate, DateTime? returnDate)
+    {
+        BookId = bookId;
+        IssueDate = issueDate;
+        ReturnDate = returnDate;
+    }
+}
+
+public class Library
+{
+    private Dictionary<int, Book> books;
+    private List<LoanRecord> loanRecords;
+    
+    public Library()
+    {
+        books = new Dictionary<int, Book>();
+        loanRecords = new List<LoanRecord>();
+    }
+    
+    public void AddBook(Book book)
+    {
+        books[book.Id] = book;
+    }
+    
+    public void IssueBook(int bookId, DateTime issueDate)
+    {
+        if (!books.ContainsKey(bookId))
+            throw new ArgumentException("Книга с таким ID не найдена");
+        
+        loanRecords.Add(new LoanRecord(bookId, issueDate, null));
+    }
+    
+    public void ReturnBook(int bookId, DateTime returnDate)
+    {
+        var record = loanRecords.LastOrDefault(r => r.BookId == bookId && r.ReturnDate == null);
+        
+        if (record.BookId == 0)
+            throw new ArgumentException("Активная запись о выдаче не найдена");
+        
+        int index = loanRecords.IndexOf(record);
+        loanRecords[index] = new LoanRecord(bookId, record.IssueDate, returnDate);
+    }
+    
+    public List<Book> GetNeverBorrowedBooks()
+    {
+        var borrowedBookIds = loanRecords.Select(r => r.BookId).Distinct();
+        return books.Values.Where(b => !borrowedBookIds.Contains(b.Id)).ToList();
+    }
+    
+    public List<Book> GetNotReturnedBooks()
+    {
+        var notReturnedBookIds = loanRecords
+            .Where(r => r.ReturnDate == null)
+            .Select(r => r.BookId)
+            .Distinct();
+        
+        return books.Values.Where(b => notReturnedBookIds.Contains(b.Id)).ToList();
+    }
+    
+    public Dictionary<Book, List<LoanRecord>> GetFullLoanHistory()
+    {
+        var history = new Dictionary<Book, List<LoanRecord>>();
+        
+        foreach (var book in books.Values)
+        {
+            var records = loanRecords.Where(r => r.BookId == book.Id).ToList();
+            if (records.Any())
+            {
+                history.Add(book, records);
+            }
+        }
+        
+        return history;
+    }
+    
+    public void PrintBooksWithLoanHistory()
+    {
+        var history = GetFullLoanHistory();
+        
+        var neverBorrowed = GetNeverBorrowedBooks();
+        Console.WriteLine("Книги, которые никогда не выдавались:");
+        foreach (var book in neverBorrowed)
+        {
+            Console.WriteLine($"ID: {book.Id}, Автор: {book.Author}, Название: {book.Title}, " +
+                            $"Год: {book.Year}, Издательство: {book.Publisher}");
+        }
+        
+        Console.WriteLine("\nКниги с историей выдачи:");
+        foreach (var entry in history)
+        {
+            var book = entry.Key;
+            var records = entry.Value;
+            
+            Console.WriteLine($"\nID: {book.Id}, Автор: {book.Author}, Название: {book.Title}, " +
+                            $"Год: {book.Year}, Издательство: {book.Publisher}");
+            
+            foreach (var record in records)
+            {
+                Console.WriteLine($"  Выдана: {record.IssueDate.ToShortDateString()}, " +
+                                $"Возвращена: {(record.ReturnDate.HasValue ? record.ReturnDate.Value.ToShortDateString() : "не возвращена")}");
+            }
+        }
+        
+        var notReturned = GetNotReturnedBooks();
+        Console.WriteLine("\nКниги, которые не возвращены в библиотеку:");
+        foreach (var book in notReturned)
+        {
+            Console.WriteLine($"ID: {book.Id}, Автор: {book.Author}, Название: {book.Title}");
+        }
+    }
+}
+
+public class Program
+{
+    public static void Main()
+    {
+        Library library = new Library();
+        
+        library.AddBook(new Book(1, "Лев Толстой", "Война и мир", 1869, "Русский вестник"));
+        library.AddBook(new Book(2, "Фёдор Достоевский", "Преступление и наказание", 1866, "Русский вестник"));
+        library.AddBook(new Book(3, "Антон Чехов", "Рассказы", 1886, "Новое время"));
+        library.AddBook(new Book(4, "Иван Тургенев", "Отцы и дети", 1862, "Русский вестник"));
+        library.AddBook(new Book(5, "Николай Гоголь", "Мёртвые души", 1842, "Современник"));
+        
+        library.IssueBook(1, new DateTime(2023, 1, 10));
+        library.ReturnBook(1, new DateTime(2023, 2, 15));
+        library.IssueBook(1, new DateTime(2023, 3, 1));
+        library.ReturnBook(1, new DateTime(2023, 4, 1));
+        
+        library.IssueBook(2, new DateTime(2023, 3, 5));
+        
+        library.IssueBook(3, new DateTime(2023, 4, 20));
+        library.ReturnBook(3, new DateTime(2023, 5, 25));
+        library.IssueBook(3, new DateTime(2023, 6, 1));
+        
+        library.IssueBook(4, new DateTime(2023, 1, 15));
+        library.ReturnBook(4, new DateTime(2023, 2, 20));
+
+        library.PrintBooksWithLoanHistory();
+    }
+}

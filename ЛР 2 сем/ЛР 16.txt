@@ -1,0 +1,103 @@
+//На вход подается текст, состоящий из нескольких строк. Количество строк (спрашиваете сколько строк у пользователя либо через while). Создать массив размером 256. Массив будет хранить частоту появления каждого символа. 
+
+На основе массива выдать:
+1. Какой символ встречался реже всего(если несколько выдать все)
+2. Какой символ встречался чаще всего(если несколько выдать все)
+
+Выделять память стэк аллоком. Foreach использовать для движения по массиву нельзя
+
+using System;
+using System.Collections.Generic;
+
+class Program
+{
+    static void Main()
+    {
+        Console.Write("Введите количество строк: ");
+        int lineCount = int.Parse(Console.ReadLine());
+        
+        int[] freq = new int[256];
+        
+        for (int i = 0; i < lineCount; i++)
+        {
+            Console.Write($"Введите строку {i + 1}: ");
+            string line = Console.ReadLine();
+            
+            for (int j = 0; j < line.Length; j++)
+            {
+                char c = line[j];
+                if (c < 256)
+                {
+                    freq[c]++;
+                }
+            }
+        }
+        
+        int minFreq = int.MaxValue;
+        int maxFreq = 0;
+        
+        for (int i = 0; i < 256; i++)
+        {
+            if (freq[i] > 0)
+            {
+                if (freq[i] < minFreq)
+                {
+                    minFreq = freq[i];
+                }
+                if (freq[i] > maxFreq)
+                {
+                    maxFreq = freq[i];
+                }
+            }
+        }
+        
+        List<char> minChars = new List<char>();
+        for (int i = 0; i < 256; i++)
+        {
+            if (freq[i] == minFreq)
+            {
+                minChars.Add((char)i);
+            }
+        }
+        
+        List<char> maxChars = new List<char>();
+        for (int i = 0; i < 256; i++)
+        {
+            if (freq[i] == maxFreq)
+            {
+                maxChars.Add((char)i);
+            }
+        }
+        
+        Console.Write("Символ(ы), встречающийся реже всего: ");
+        foreach (char c in minChars)
+        {
+            Console.Write(FormatChar(c) + " ");
+        }
+        Console.WriteLine($"(встречается {minFreq} раз(а))");
+        
+        Console.Write("Символ(ы), встречающийся чаще всего: ");
+        foreach (char c in maxChars)
+        {
+            Console.Write(FormatChar(c) + " ");
+        }
+        Console.WriteLine($"(встречается {maxFreq} раз(а))");
+    }
+    
+    static string FormatChar(char c)
+    {
+        switch (c)
+        {
+            case ' ':
+                return "' '";
+            case '\t':
+                return "'\\t'";
+            case '\n':
+                return "'\\n'";
+            case '\r':
+                return "'\\r'";
+            default:
+                return $"'{c}'";
+        }
+    }
+}

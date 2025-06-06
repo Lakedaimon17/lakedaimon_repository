@@ -1,0 +1,103 @@
+//Класс с двумя переменными целого типа. В классе реализованы методы сложения, разница 1 и 2 элемента, умножения, целочисленное деление 1 на 2 (проверка на 0 обязательная). Описан делегат. Необходимо создать два объекта заданного класса. Два экземпляра делегата. Первый работает с первым объектом и работает с группой (суммирование, результат суммирования умноженный на второй элемент, деление результата на предыдущем шаге на 2). Второй делегат работает со вторым объектом, следующая группа операций: (деление, вычитание из результата деления 2 элемента, умножение полученного результата на 2). 
+
+using System;
+
+public class MathOperations
+{
+    public int FirstNumber { get; set; }
+    public int SecondNumber { get; set; }
+
+    public MathOperations(int firstNumber, int secondNumber)
+    {
+        FirstNumber = firstNumber;
+        SecondNumber = secondNumber;
+    }
+
+    public int Add() => FirstNumber + SecondNumber;
+    public int Subtract() => FirstNumber - SecondNumber;
+    public int Multiply() => FirstNumber * SecondNumber;
+
+    public int Divide()
+    {
+        if (SecondNumber == 0)
+            throw new DivideByZeroException("Ошибка: деление на ноль!");
+        return FirstNumber / SecondNumber;
+    }
+}
+
+public delegate int OperationDelegate(MathOperations mathOperations);
+
+class Program
+{
+    static int ReadInt(string prompt)
+    {
+        while (true)
+        {
+            Console.Write(prompt);
+            if (int.TryParse(Console.ReadLine(), out int number))
+                return number;
+            Console.WriteLine("Ошибка! Введите целое число.");
+        }
+    }
+
+    static void Main()
+    {
+        Console.WriteLine("Введите данные для первого объекта:");
+        int firstNumber1 = ReadInt("Первое число: ");
+        int secondNumber1 = ReadInt("Второе число: ");
+        var obj1 = new MathOperations(firstNumber1, secondNumber1);
+
+        Console.WriteLine("\nВведите данные для второго объекта:");
+        int firstNumber2 = ReadInt("Первое число: ");
+        int secondNumber2 = ReadInt("Второе число: ");
+        var obj2 = new MathOperations(firstNumber2, secondNumber2);
+
+        OperationDelegate delegate1 = (math) =>
+        {
+            Console.WriteLine("\nРабота первого делегата");
+            int sum = math.Add();
+            Console.WriteLine($"1. Сумма: {math.FirstNumber} + {math.SecondNumber} = {sum}");
+
+            int multiplied = sum * math.SecondNumber;
+            Console.WriteLine($"2. Умножение суммы на второй элемент: {sum} * {math.SecondNumber} = {multiplied}");
+
+            if (math.SecondNumber == 0)
+            {
+                Console.WriteLine("3. Деление невозможно: второй элемент равен нулю!");
+                return 0;
+            }
+            int divided = multiplied / math.SecondNumber;
+            Console.WriteLine($"3. Деление результата на второй элемент: {multiplied} / {math.SecondNumber} = {divided}");
+
+            return divided;
+        };
+
+        OperationDelegate delegate2 = (math) =>
+        {
+            Console.WriteLine("\nРабота второго делегата");
+            try
+            {
+                int divisionResult = math.Divide();
+                Console.WriteLine($"1. Деление: {math.FirstNumber} / {math.SecondNumber} = {divisionResult}");
+
+                int subtracted = divisionResult - math.SecondNumber;
+                Console.WriteLine($"2. Вычитание второго элемента: {divisionResult} - {math.SecondNumber} = {subtracted}");
+
+                int multiplied = subtracted * math.SecondNumber;
+                Console.WriteLine($"3. Умножение результата на второй элемент: {subtracted} * {math.SecondNumber} = {multiplied}");
+
+                return multiplied;
+            }
+            catch (DivideByZeroException)
+            {
+                Console.WriteLine("1. Ошибка: деление на ноль!");
+                return 0;
+            }
+        };
+        int result1 = delegate1(obj1);
+        Console.WriteLine($"Итоговый результат: {result1}");
+
+        int result2 = delegate2(obj2);
+        Console.WriteLine($"Итоговый результат: {result2}");
+    }
+}

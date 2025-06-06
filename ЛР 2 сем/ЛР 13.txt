@@ -1,0 +1,276 @@
+//База данных из трёх взаимодействующих таблиц:
+1. Поставщики
+2. Товары
+3. Движение товаров
+Необходимо, используя язык запросов, выдать:
+1. Остатки товаров
+2. Товары, сгруппированные по поставщикам (только поставки)
+3. Товары по продажам, сгруппированные по дате продажи
+Таблицы - отдельные классы
+1) Порядковый номер поставщика, контактный номер, наименование
+2) Артикул, наименование товара
+3) Артикул, номер поставщика (если поступление), префикс поступление или продажа, дата, кол-во штук, стоимость за единицу.
+С меню.
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+public class Supplier
+{
+    public int SupplierId { get; set; }
+    public string ContactNumber { get; set; }
+    public string Name { get; set; }
+}
+
+public class Product
+{
+    public string Article { get; set; }
+    public string Name { get; set; }
+}
+
+public class ProductMovement
+{
+    public string Article { get; set; }
+    public int? SupplierId { get; set; }
+    public string MovementType { get; set; }
+    public DateTime Date { get; set; }
+    public int Quantity { get; set; }
+    public decimal UnitPrice { get; set; }
+}
+
+public class ProductQuantity
+{
+    public Product Product { get; set; }
+    public int Quantity { get; set; }
+}
+
+public class SaleInfo
+{
+    public Product Product { get; set; }
+    public int Quantity { get; set; }
+    public decimal TotalPrice { get; set; }
+}
+
+public class ProductDatabase
+{
+    public List<Supplier> Suppliers { get; } = new List<Supplier>();
+    public List<Product> Products { get; } = new List<Product>();
+    public List<ProductMovement> Movements { get; } = new List<ProductMovement>();
+
+    public Dictionary<string, int> GetProductBalances()
+    {
+        var balances = new Dictionary<string, int>();
+        
+        foreach (var movement in Movements)
+        {
+            if (movement.MovementType == "Поступление")
+            {
+                if (balances.ContainsKey(movement.Article))
+                    balances[movement.Article] += movement.Quantity;
+                else
+                    balances[movement.Article] = movement.Quantity;
+            }
+            else if (movement.MovementType == "Продажа")
+            {
+                if (balances.ContainsKey(movement.Article))
+                    balances[movement.Article] -= movement.Quantity;
+                else
+                    balances[movement.Article] = -movement.Quantity;
+            }
+        }
+        
+        return balances;
+    }
+
+    public Dictionary<int, List<ProductQuantity>> GetProductsBySuppliers()
+    {
+        var result = new Dictionary<int, List<ProductQuantity>>();
+        
+        var supplies = Movements.Where(m => m.MovementType == "Поступление");
+        
+        foreach (var supply in supplies)
+        {
+            if (!supply.SupplierId.HasValue) continue;
+            
+            var product = Products.FirstOrDefault(p => p.Article == supply.Article);
+            if (product == null) continue;
+            
+            var pq = new ProductQuantity { Product = product, Quantity = supply.Quantity };
+            
+            if (result.ContainsKey(supply.SupplierId.Value))
+            {
+                result[supply.SupplierId.Value].Add(pq);
+            }
+            else
+            {
+                result[supply.SupplierId.Value] = new List<ProductQuantity> { pq };
+            }
+        }
+        
+        return result;
+    }
+
+    public Dictionary<DateTime, List<SaleInfo>> GetSalesByDate()
+    {
+        var result = new Dictionary<DateTime, List<SaleInfo>>();
+        
+        var sales = Movements.Where(m => m.MovementType == "Продажа");
+        
+        foreach (var sale in sales)
+        {
+            var product = Products.FirstOrDefault(p => p.Article == sale.Article);
+            if (product == null) continue;
+            
+            var saleInfo = new SaleInfo 
+            { 
+                Product = product, 
+                Quantity = sale.Quantity, 
+                TotalPrice = sale.Quantity * sale.UnitPrice 
+            };
+            
+            var dateKey = sale.Date.Date;
+            if (result.ContainsKey(dateKey))
+            {
+                result[dateKey].Add(saleInfo);
+            }
+            else
+            {
+                result[dateKey] = new List<SaleInfo> { saleInfo };
+            }
+        }
+        
+        return result;
+    }
+}
+
+class Program
+{
+    static void Main()
+    {
+        var db = new ProductDatabase();
+        InitializeTestData(db);
+        
+        while (true)
+        {
+            Console.WriteLine("\nМеню:");
+            Console.WriteLine("1. Показать остатки товаров");
+            Console.WriteLine("2. Показать товары по поставщикам");
+            Console.WriteLine("3. Показать продажи по датам");
+            Console.WriteLine("4. Выход");
+            Console.Write("Выберите действие: ");
+            
+            var choice = Console.ReadLine();
+            
+            switch (choice)
+            {
+                case "1":
+                    ShowProductBalances(db);
+                    break;
+                case "2":
+                    ShowProductsBySuppliers(db);
+                    break;
+                case "3":
+                    ShowSalesByDate(db);
+                    break;
+                case "4":
+                    return;
+                default:
+                    Console.WriteLine("Неверный ввод. Попробуйте снова.");
+                    break;
+            }
+        }
+    }
+
+    static void InitializeTestData(ProductDatabase db)
+    {
+        db.Suppliers.AddRange(new[]
+        {
+            new Supplier { SupplierId = 1, ContactNumber = "+79001112233", Name = "ООО Поставщик 1" },
+            new Supplier { SupplierId = 2, ContactNumber = "+79004445566", Name = "ИП Поставщик 2" },
+            new Supplier { SupplierId = 3, ContactNumber = "+79007778899", Name = "АО Поставщик 3" }
+        });
+
+        db.Products.AddRange(new[]
+        {
+            new Product { Article = "P001", Name = "Ноутбук" },
+            new Product { Article = "P002", Name = "Смартфон" },
+            new Product { Article = "P003", Name = "Планшет" },
+            new Product { Article = "P004", Name = "Монитор" }
+        });
+
+        db.Movements.AddRange(new[]
+        {
+            new ProductMovement { Article = "P001", SupplierId = 1, MovementType = "Поступление", 
+                Date = new DateTime(2023, 1, 10), Quantity = 5, UnitPrice = 50000 },
+            new ProductMovement { Article = "P002", SupplierId = 2, MovementType = "Поступление", 
+                Date = new DateTime(2023, 1, 12), Quantity = 10, UnitPrice = 30000 },
+            new ProductMovement { Article = "P003", SupplierId = 3, MovementType = "Поступление", 
+                Date = new DateTime(2023, 1, 15), Quantity = 8, UnitPrice = 25000 },
+            new ProductMovement { Article = "P004", SupplierId = 1, MovementType = "Поступление", 
+                Date = new DateTime(2023, 1, 20), Quantity = 12, UnitPrice = 15000 },
+            new ProductMovement { Article = "P001", SupplierId = 1, MovementType = "Поступление", 
+                Date = new DateTime(2023, 2, 5), Quantity = 3, UnitPrice = 52000 },
+            
+            new ProductMovement { Article = "P001", MovementType = "Продажа", 
+                Date = new DateTime(2023, 1, 18), Quantity = 2, UnitPrice = 60000 },
+            new ProductMovement { Article = "P002", MovementType = "Продажа", 
+                Date = new DateTime(2023, 1, 20), Quantity = 3, UnitPrice = 35000 },
+            new ProductMovement { Article = "P003", MovementType = "Продажа", 
+                Date = new DateTime(2023, 1, 22), Quantity = 1, UnitPrice = 30000 },
+            new ProductMovement { Article = "P001", MovementType = "Продажа", 
+                Date = new DateTime(2023, 2, 10), Quantity = 4, UnitPrice = 62000 },
+            new ProductMovement { Article = "P004", MovementType = "Продажа", 
+                Date = new DateTime(2023, 2, 12), Quantity = 5, UnitPrice = 18000 }
+        });
+    }
+
+    static void ShowProductBalances(ProductDatabase db)
+    {
+        Console.WriteLine("\nОстатки товаров:");
+        var balances = db.GetProductBalances();
+        
+        foreach (var balance in balances)
+        {
+            var product = db.Products.FirstOrDefault(p => p.Article == balance.Key);
+            Console.WriteLine($"{product?.Name ?? "Неизвестный товар"} ({balance.Key}): {balance.Value} шт.");
+        }
+    }
+
+    static void ShowProductsBySuppliers(ProductDatabase db)
+    {
+        Console.WriteLine("\nТовары по поставщикам (только поставки):");
+        var productsBySuppliers = db.GetProductsBySuppliers();
+        
+        foreach (var entry in productsBySuppliers)
+        {
+            var supplier = db.Suppliers.FirstOrDefault(s => s.SupplierId == entry.Key);
+            Console.WriteLine($"\nПоставщик: {supplier?.Name ?? "Неизвестный поставщик"} (ID: {entry.Key})");
+            
+            foreach (var pq in entry.Value)
+            {
+                Console.WriteLine($"  {pq.Product.Name} ({pq.Product.Article}): {pq.Quantity} шт.");
+            }
+        }
+    }
+
+    static void ShowSalesByDate(ProductDatabase db)
+    {
+        Console.WriteLine("\nПродажи по датам:");
+        var salesByDate = db.GetSalesByDate();
+        
+        foreach (var entry in salesByDate.OrderBy(d => d.Key))
+        {
+            Console.WriteLine($"\nДата: {entry.Key.ToShortDateString()}");
+            Console.WriteLine($"{"Товар",-20} {"Кол-во",10} {"Сумма",15}");
+            
+            foreach (var sale in entry.Value)
+            {
+                Console.WriteLine($"{sale.Product.Name,-20} {sale.Quantity,10} {sale.TotalPrice,15:C}");
+            }
+            
+            var dayTotal = entry.Value.Sum(s => s.TotalPrice);
+            Console.WriteLine($"{"Итого:",-20} {"",10} {dayTotal,15:C}");
+        }
+    }
+}

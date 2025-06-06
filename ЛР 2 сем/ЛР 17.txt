@@ -1,0 +1,104 @@
+//Необходимо выполнить построение бинарного дерева на основе данных, которые представляют собой объекты следующей структуры:
+ID студента, ФИО студента, два указателя - на левую и правую части дерева
+Сделать указатель на корень дерева
+Лево - меньший id, право - больший id
+
+using System;
+
+class StudentNode
+{
+    public int StudentId { get; set; }
+    public string FullName { get; set; }
+    public StudentNode Left { get; set; }
+    public StudentNode Right { get; set; }
+
+    public StudentNode(int id, string name)
+    {
+        StudentId = id;
+        FullName = name;
+        Left = null;
+        Right = null;
+    }
+}
+
+class StudentTree
+{
+    private StudentNode root;
+
+    public StudentTree()
+    {
+        root = null;
+    }
+    
+    public void AddStudent(int id, string name)
+    {
+        StudentNode newNode = new StudentNode(id, name);
+        
+        if (root == null)
+        {
+            root = newNode;
+        }
+        else
+        {
+            StudentNode current = root;
+            while (true)
+            {
+                if (id < current.StudentId)
+                {
+                    if (current.Left == null)
+                    {
+                        current.Left = newNode;
+                        break;
+                    }
+                    current = current.Left;
+                }
+                else if (id > current.StudentId)
+                {
+                    if (current.Right == null)
+                    {
+                        current.Right = newNode;
+                        break;
+                    }
+                    current = current.Right;
+                }
+                else
+                {
+                    current.FullName = name;
+                    break;
+                }
+            }
+        }
+    }
+    
+    public void PrintTree()
+    {
+        Console.WriteLine("Содержимое дерева (отсортировано по ID):");
+        InOrderTraversal(root);
+    }
+
+    private void InOrderTraversal(StudentNode node)
+    {
+        if (node != null)
+        {
+            InOrderTraversal(node.Left);
+            Console.WriteLine($"ID: {node.StudentId}, ФИО: {node.FullName}");
+            InOrderTraversal(node.Right);
+        }
+    }
+}
+
+class Program
+{
+    static void Main()
+    {
+        StudentTree tree = new StudentTree();
+
+        tree.AddStudent(101, "Иванов Иван Иванович");
+        tree.AddStudent(105, "Петров Петр Петрович");
+        tree.AddStudent(99, "Сидорова Анна Михайловна");
+        tree.AddStudent(103, "Кузнецова Елена Владимировна");
+        tree.AddStudent(107, "Смирнов Алексей Дмитриевич");
+
+        tree.PrintTree();
+    }
+}

@@ -1,0 +1,62 @@
+//Дан файл с набором строк. В каждой строке располагаются различные символы (и цифры, и буквы и т.д.). Необходимо в выходной файл поместить только те строки, в которых есть хотя бы одно чётное число (числом будем считать набор цифр, ограниченный другими символами (в том числе конец строки)).
+
+using System;
+using System.IO;
+using System.Text.RegularExpressions;
+
+class Program 
+{
+    static void Main() 
+    {
+        string st = string.Empty;
+        FileInfo f = new FileInfo(@"D:\Test.txt");
+        StreamWriter sw = f.CreateText();
+        
+        Console.WriteLine("Вводите строки (пустая строка для завершения ввода):");
+        do 
+        {
+            st = Console.ReadLine();
+            if (st != string.Empty)
+            {
+                sw.WriteLine(st);
+            }
+        } while (st != string.Empty);
+        sw.Close();
+
+        StreamReader sr = f.OpenText();
+        StreamWriter outputSw = new StreamWriter(@"D:\Output.txt");
+        
+        Console.WriteLine("\nСтроки с четными числами:");
+        string s;
+        while ((s = sr.ReadLine()) != null) 
+        {
+            if (ContainsEvenNumber(s))
+            {
+                Console.WriteLine(s);
+                outputSw.WriteLine(s);
+            }
+        }
+        
+        sr.Close();
+        outputSw.Close();
+        
+        Console.WriteLine("\nРезультат сохранен в D:\\Output.txt");
+    }
+
+    static bool ContainsEvenNumber(string input)
+    {
+        MatchCollection matches = Regex.Matches(input, @"-?\d+");
+        
+        foreach (Match match in matches)
+        {
+            if (int.TryParse(match.Value, out int number))
+            {
+                if (number % 2 == 0)
+                {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+}

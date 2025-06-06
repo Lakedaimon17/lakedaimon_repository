@@ -1,0 +1,85 @@
+//Необходимо реализовать обобщённый класс, который позволяет хранить в массиве объекты любого типа. В данном классе определить методы для добавления данных в массив, удаления из массива, получения элемента по индексу. 
+
+using System;
+
+public class GenericArray<T>
+{
+    private T[] _items;
+    private int _count;
+
+    public GenericArray(int initialCapacity = 4)
+    {
+        _items = new T[initialCapacity];
+        _count = 0;
+    }
+
+    public void Add(T item)
+    {
+        if (_count == _items.Length)
+        {
+            Array.Resize(ref _items, _items.Length * 2);
+        }
+        _items[_count] = item;
+        _count++;
+    }
+
+    public void RemoveAt(int index)
+    {
+        if (index < 0 || index >= _count)
+        {
+            throw new IndexOutOfRangeException("Индекс находится вне границ массива");
+        }
+
+        for (int i = index; i < _count - 1; i++)
+        {
+            _items[i] = _items[i + 1];
+        }
+
+        _count--;
+        _items[_count] = default(T);
+    }
+
+    public T Get(int index)
+    {
+        if (index < 0 || index >= _count)
+        {
+            throw new IndexOutOfRangeException("Индекс находится вне границ массива");
+        }
+        return _items[index];
+    }
+
+    public int Count => _count;
+
+    public void PrintAll()
+    {
+        Console.WriteLine($"Массив содержит {_count} элементов:");
+        for (int i = 0; i < _count; i++)
+        {
+            Console.WriteLine($"[{i}] = {_items[i]}");
+        }
+    }
+}
+
+class Program
+{
+    static void Main()
+    {
+        var intArray = new GenericArray<int>();
+        intArray.Add(10);
+        intArray.Add(20);
+        intArray.Add(30);
+        intArray.PrintAll();
+
+        Console.WriteLine("\nЭлемент с индексом 1: " + intArray.Get(1));
+        intArray.RemoveAt(1);
+        Console.WriteLine("После удаления элемента с индексом 1:");
+        intArray.PrintAll();
+
+        var stringArray = new GenericArray<string>();
+        stringArray.Add("Первый");
+        stringArray.Add("Второй");
+        stringArray.Add("Третий");
+        Console.WriteLine("\nСтроковый массив:");
+        stringArray.PrintAll();
+    }
+}

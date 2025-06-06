@@ -1,0 +1,265 @@
+//База данных по компьютерам.
+Таблица 1: порядковый номер (id), наименование марки, модель
+Таблица 2: порядковый номер (id), наименование ос 
+Таблица 3: пользователи: id, ФИО, имеется ноут или нет, марка ноутбука (id), ос (id)
+Можно Null или ноль
+Запросы:
+1) Пользователи по наличию ноута
+2) Пользователи по марке
+3) Пользователи по ос
+4) Выдать все данные пользователя (ноут не просто номер, а все данные).
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+public class Laptop
+{
+    public int Id { get; set; }
+    public string Brand { get; set; }
+    public string Model { get; set; }
+}
+
+public class OperatingSystem
+{
+    public int Id { get; set; }
+    public string Name { get; set; }
+}
+
+public class User
+{
+    public int Id { get; set; }
+    public string FullName { get; set; }
+    public bool HasLaptop { get; set; }
+    public int? LaptopId { get; set; } 
+    public int? OSId { get; set; }
+}
+
+public class ComputerDatabase
+{
+    public List<Laptop> Laptops { get; } = new List<Laptop>();
+    public List<OperatingSystem> OperatingSystems { get; } = new List<OperatingSystem>();
+    public List<User> Users { get; } = new List<User>();
+
+    public List<User> GetUsersByLaptopPresence(bool hasLaptop)
+    {
+        return Users.Where(u => u.HasLaptop == hasLaptop).ToList();
+    }
+
+    public List<User> GetUsersByLaptopBrand(int brandId)
+    {
+        return Users.Where(u => u.LaptopId == brandId).ToList();
+    }
+
+    public List<User> GetUsersByOS(int osId)
+    {
+        return Users.Where(u => u.OSId == osId).ToList();
+    }
+
+    public void PrintFullUserInfo(int userId)
+    {
+        var user = Users.FirstOrDefault(u => u.Id == userId);
+        if (user == null)
+        {
+            Console.WriteLine("Пользователь не найден");
+            return;
+        }
+
+        Console.WriteLine($"\nПолная информация о пользователе ID {user.Id}:");
+        Console.WriteLine($"ФИО: {user.FullName}");
+        Console.WriteLine($"Имеет ноутбук: {(user.HasLaptop ? "Да" : "Нет")}");
+
+        if (user.HasLaptop && user.LaptopId.HasValue)
+        {
+            var laptop = Laptops.FirstOrDefault(l => l.Id == user.LaptopId.Value);
+            Console.WriteLine($"Ноутбук: {laptop?.Brand ?? "Неизвестно"} {laptop?.Model ?? "Неизвестно"}");
+        }
+        else
+        {
+            Console.WriteLine("Ноутбук: Нет");
+        }
+
+        if (user.OSId.HasValue)
+        {
+            var os = OperatingSystems.FirstOrDefault(o => o.Id == user.OSId.Value);
+            Console.WriteLine($"ОС: {os?.Name ?? "Неизвестно"}");
+        }
+        else
+        {
+            Console.WriteLine("ОС: Не указана");
+        }
+    }
+}
+
+class Program
+{
+    static void Main()
+    {
+        var db = new ComputerDatabase();
+        InitializeTestData(db);
+
+        while (true)
+        {
+            Console.WriteLine("\nМеню:");
+            Console.WriteLine("1. Пользователи по наличию ноута");
+            Console.WriteLine("2. Пользователи по марке ноутбука");
+            Console.WriteLine("3. Пользователи по операционной системе");
+            Console.WriteLine("4. Полные данные пользователя");
+            Console.WriteLine("5. Выход");
+            Console.Write("Выберите действие: ");
+
+            var choice = Console.ReadLine();
+
+            switch (choice)
+            {
+                case "1":
+                    ShowUsersByLaptopPresence(db);
+                    break;
+                case "2":
+                    ShowUsersByLaptopBrand(db);
+                    break;
+                case "3":
+                    ShowUsersByOS(db);
+                    break;
+                case "4":
+                    ShowFullUserInfo(db);
+                    break;
+                case "5":
+                    return;
+                default:
+                    Console.WriteLine("Неверный ввод. Попробуйте снова.");
+                    break;
+            }
+        }
+    }
+
+    static void InitializeTestData(ComputerDatabase db)
+    {
+        db.Laptops.AddRange(new[]
+        {
+            new Laptop { Id = 1, Brand = "Lenovo", Model = "ThinkPad X1 Carbon" },
+            new Laptop { Id = 2, Brand = "Dell", Model = "XPS 13" },
+            new Laptop { Id = 3, Brand = "Apple", Model = "MacBook Pro" },
+            new Laptop { Id = 4, Brand = "HP", Model = "EliteBook" }
+        });
+
+        db.OperatingSystems.AddRange(new[]
+        {
+            new OperatingSystem { Id = 1, Name = "Windows 10" },
+            new OperatingSystem { Id = 2, Name = "Windows 11" },
+            new OperatingSystem { Id = 3, Name = "macOS" },
+            new OperatingSystem { Id = 4, Name = "Ubuntu" }
+        });
+
+        db.Users.AddRange(new[]
+        {
+            new User { Id = 1, FullName = "Иванов Иван Иванович", HasLaptop = true, LaptopId = 1, OSId = 1 },
+            new User { Id = 2, FullName = "Петров Петр Петрович", HasLaptop = true, LaptopId = 2, OSId = 2 },
+            new User { Id = 3, FullName = "Сидоров Сидор Сидорович", HasLaptop = false, LaptopId = null, OSId = null },
+            new User { Id = 4, FullName = "Алексеев Алексей Алексеевич", HasLaptop = true, LaptopId = 3, OSId = 3 },
+            new User { Id = 5, FullName = "Сергеев Сергей Сергеевич", HasLaptop = true, LaptopId = 4, OSId = 4 },
+            new User { Id = 6, FullName = "Андреев Андрей Андреевич", HasLaptop = false, LaptopId = null, OSId = null },
+            new User { Id = 7, FullName = "Дмитриев Дмитрий Дмитриевич", HasLaptop = true, LaptopId = 1, OSId = 2 }
+        });
+    }
+
+    static void ShowUsersByLaptopPresence(ComputerDatabase db)
+    {
+        Console.Write("Показать пользователей с ноутбуком (1) или без (0)? ");
+        if (int.TryParse(Console.ReadLine(), out int hasLaptop))
+        {
+            var users = db.GetUsersByLaptopPresence(hasLaptop == 1);
+            Console.WriteLine($"\nПользователи {(hasLaptop == 1 ? "с" : "без")} ноутбука:");
+            PrintUsers(users, db);
+        }
+        else
+        {
+            Console.WriteLine("Неверный ввод");
+        }
+    }
+
+    static void ShowUsersByLaptopBrand(ComputerDatabase db)
+    {
+        Console.WriteLine("\nДоступные марки ноутбуков:");
+        foreach (var laptop in db.Laptops)
+        {
+            Console.WriteLine($"{laptop.Id}. {laptop.Brand} {laptop.Model}");
+        }
+        
+        Console.Write("Выберите ID марки: ");
+        if (int.TryParse(Console.ReadLine(), out int brandId))
+        {
+            var users = db.GetUsersByLaptopBrand(brandId);
+            var laptop = db.Laptops.FirstOrDefault(l => l.Id == brandId);
+            Console.WriteLine($"\nПользователи с ноутбуком {laptop?.Brand ?? "Неизвестно"}:");
+            PrintUsers(users, db);
+        }
+        else
+        {
+            Console.WriteLine("Неверный ввод");
+        }
+    }
+
+    static void ShowUsersByOS(ComputerDatabase db)
+    {
+        Console.WriteLine("\nДоступные операционные системы:");
+        foreach (var os in db.OperatingSystems)
+        {
+            Console.WriteLine($"{os.Id}. {os.Name}");
+        }
+        
+        Console.Write("Выберите ID ОС: ");
+        if (int.TryParse(Console.ReadLine(), out int osId))
+        {
+            var users = db.GetUsersByOS(osId);
+            var os = db.OperatingSystems.FirstOrDefault(o => o.Id == osId);
+            Console.WriteLine($"\nПользователи с ОС {os?.Name ?? "Неизвестно"}:");
+            PrintUsers(users, db);
+        }
+        else
+        {
+            Console.WriteLine("Неверный ввод");
+        }
+    }
+
+    static void ShowFullUserInfo(ComputerDatabase db)
+    {
+        Console.Write("Введите ID пользователя: ");
+        if (int.TryParse(Console.ReadLine(), out int userId))
+        {
+            db.PrintFullUserInfo(userId);
+        }
+        else
+        {
+            Console.WriteLine("Неверный ввод");
+        }
+    }
+
+    static void PrintUsers(List<User> users, ComputerDatabase db)
+    {
+        if (!users.Any())
+        {
+            Console.WriteLine("Пользователи не найдены");
+            return;
+        }
+
+        foreach (var user in users)
+        {
+            string laptopInfo = "Нет";
+            if (user.HasLaptop && user.LaptopId.HasValue)
+            {
+                var laptop = db.Laptops.FirstOrDefault(l => l.Id == user.LaptopId.Value);
+                laptopInfo = $"{laptop?.Brand ?? "Неизвестно"} {laptop?.Model ?? "Неизвестно"}";
+            }
+
+            string osInfo = "Не указана";
+            if (user.OSId.HasValue)
+            {
+                var os = db.OperatingSystems.FirstOrDefault(o => o.Id == user.OSId.Value);
+                osInfo = os?.Name ?? "Неизвестно";
+            }
+
+            Console.WriteLine($"ID: {user.Id}, ФИО: {user.FullName}, Ноутбук: {laptopInfo}, ОС: {osInfo}");
+        }
+    }
+}
